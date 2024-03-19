@@ -31,7 +31,7 @@ TYPE
    END;
 
 CONST
-   MAXBITS = 31;
+   MAXBITS = 31;   (* This should be set manually for a given version of Modula-2 *)
 
 VAR
    MaxBitmap: BITSET;
@@ -70,15 +70,50 @@ END SETBIT;
 
 PROCEDURE SHL(value: CARDINAL; shiftFactor: CARDINAL): CARDINAL;
 (* SHL - Shift a given value to the left by a certain number of bits. *)
+VAR
+   i, target: CARDINAL;
+
 BEGIN
-   RETURN 0;
+   FOR i := 0 TO MAXBITS-shiftFactor DO
+      IF BIT(value, i) THEN
+         SETBIT(target, i+shiftFactor, TRUE);
+      ELSE
+         SETBIT(target, i+shiftFactor, FALSE);
+      END;
+   END;
+
+   FOR i := 0 TO shiftFactor DO
+      SETBIT(target, i, FALSE);
+   END;
+
+   RETURN target;
+
 END SHL;
+
+
 
 PROCEDURE SHR(value: CARDINAL; shiftFactor: CARDINAL): CARDINAL;
 (* SHR - Shift a given value to the right by a certain number of bits. *)
+VAR
+   i, target: CARDINAL;
+
 BEGIN
-   RETURN 0;
+   FOR i := MAXBITS TO 0 BY -1 DO
+      IF BIT(value, i) THEN
+         SETBIT(target, i-shiftFactor, TRUE);
+      ELSE
+         SETBIT(target, i-shiftFactor, FALSE);
+      END;
+   END;
+
+   FOR i := MAXBITS TO MAXBITS-shiftFactor+1 BY -1 DO
+      SETBIT(target, i, FALSE);
+   END;
+
+   RETURN target;
 END SHR;
+
+
 
 PROCEDURE ASHR(value: INTEGER; shiftFactor: CARDINAL): INTEGER;
 (* ASHR - Shift a given value to the right by a certain number of bits,
@@ -100,6 +135,8 @@ BEGIN
    RETURN 0;
 END ROTR;
 
+
+
 PROCEDURE BWNOT(value: CARDINAL): CARDINAL;
 (* BWNOT - Invert the bits of value. *)
 VAR
@@ -116,33 +153,51 @@ END BWNOT;
 PROCEDURE BWAND(op1: CARDINAL;  op2: CARDINAL): CARDINAL;
 (* BWAND - Returns the bitwise AND of op1 and op2. *)
 VAR
-   bitmap1, bitmap2: BITSET;
-   target1, target2: CARDINAL;
+   bitmap: ARRAY [0..2] OF BITSET;
+   target: CARDINAL;
 
 BEGIN
-   RETURN 0;
+   CardinalToBS(bitmap[0], op1);
+   CardinalToBS(bitmap[1], op2);
+
+   bitmap[2] := bitmap[0] - bitmap[1];
+
+   BSToCardinal(target, bitmap[2]);
+   RETURN target;
 END BWAND;
 
 
 PROCEDURE BWOR(op1: CARDINAL;  op2: CARDINAL): CARDINAL;
 (* BWOR - Returns the bitwise OR of op1 and op2. *)
 VAR
-   bitmap1, bitmap2: BITSET;
-   target1, target2: CARDINAL;
+   bitmap: ARRAY [0..2] OF BITSET;
+   target: CARDINAL;
 
 BEGIN
-   RETURN 0;
+   CardinalToBS(bitmap[0], op1);
+   CardinalToBS(bitmap[1], op2);
+
+   bitmap[2] := bitmap[0] + bitmap[1];
+
+   BSToCardinal(target, bitmap[2]);
+   RETURN target;
 END BWOR;
 
 
 PROCEDURE BWXOR(op1: CARDINAL;  op2: CARDINAL): CARDINAL;
 (* BWXOR - Returns the bitwise Exclusive-OR of op1 and op2. *)
 VAR
-   bitmap1, bitmap2: BITSET;
-   target1, target2: CARDINAL;
+   bitmap: ARRAY [0..2] OF BITSET;
+   target: CARDINAL;
 
 BEGIN
-   RETURN 0;
+   CardinalToBS(bitmap[0], op1);
+   CardinalToBS(bitmap[1], op2);
+
+   bitmap[2] := bitmap[0] / bitmap[1];
+
+   BSToCardinal(target, bitmap[2]);
+   RETURN target;
 END BWXOR;
 
 

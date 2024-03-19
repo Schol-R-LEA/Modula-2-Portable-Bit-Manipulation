@@ -18,7 +18,7 @@ MODULE BitwiseTests;
 
 FROM STextIO IMPORT WriteString, WriteLn;
 FROM SWholeIO IMPORT WriteCard;
-FROM Bitwise IMPORT BIT, SETBIT, BWNOT;
+FROM Bitwise IMPORT BIT, SETBIT, BWNOT, SHL, SHR;
 
 VAR
    a, b, c: CARDINAL;
@@ -82,4 +82,12 @@ BEGIN
    END;
    WriteLn;
 
+   WriteCard(SHR(SHL(b, 1), 1), 1);
+   WriteString(" shifted left by 1 is ");
+   WriteCard(SHL(b, 1), 1);
+   WriteLn;
+   WriteCard(c, 1);
+   WriteString(" shifted right by 2 is ");
+   WriteCard(SHR(c, 2), 1);
+   WriteLn;
 END BitwiseTests.
