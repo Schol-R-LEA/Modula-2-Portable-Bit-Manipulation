@@ -31,7 +31,7 @@ TYPE
    END;
 
 CONST
-   MAXBITS = 63;   (* This should be set manually for a given version of Modula-2 *)
+   MAXBITS = 31;   (* This should be set manually for a given version of Modula-2 *)
 
 VAR
    MaxBitmap: BITSET;
