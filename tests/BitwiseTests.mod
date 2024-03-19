@@ -18,15 +18,17 @@ MODULE BitwiseTests;
 
 FROM STextIO IMPORT WriteString, WriteLn;
 FROM SWholeIO IMPORT WriteCard;
-FROM Bitwise IMPORT BIT, SETBIT, BWNOT, SHL, SHR;
+FROM Bitwise IMPORT BIT, SETBIT, BWNOT, SHL, SHR, BWAND, BWOR, BWXOR;
 
 VAR
-   a, b, c: CARDINAL;
+   a, b, c, d, e: CARDINAL;
 
 BEGIN
    a := 0;
    b := 6;
    c  := 0FFFFFFFFH;
+   d := 170;         (* 10101010 *)
+   e := 85;          (* 01010101 *)
 
    WriteString("a = ");
    WriteCard(a, 1);
@@ -90,4 +92,51 @@ BEGIN
    WriteString(" shifted right by 2 is ");
    WriteCard(SHR(c, 2), 1);
    WriteLn;
+
+   WriteCard(d, 1);
+   WriteString(" shifted right by 1 is ");
+   WriteCard(SHR(d, 1), 1);
+   WriteLn;
+
+   WriteCard(e, 1);
+   WriteString(" shifted left by 1 is ");
+   WriteCard(SHL(e, 1), 1);
+   WriteLn;
+
+   WriteCard(d, 1);
+   WriteString(" shifted left by 4 is ");
+   WriteCard(SHL(d, 4), 1);
+   WriteLn;
+   WriteCard(e, 1);
+   WriteString(" shifted left by 5 is ");
+   WriteCard(SHL(e, 5), 1);
+   WriteLn;
+
+   WriteCard(d, 1);
+   WriteString(" AND ");
+   WriteCard(e, 1);
+   WriteString(" is ");
+   WriteCard(BWAND(d, e), 1);
+   WriteLn;
+   WriteCard(d, 1);
+   WriteString(" OR ");
+   WriteCard(e, 1);
+   WriteString(" is ");
+   WriteCard(BWOR(d, e), 1);
+   WriteLn;
+   WriteCard(d, 1);
+   WriteString(" XOR ");
+   WriteCard(e, 1);
+   WriteString(" is ");
+   WriteCard(BWXOR(d, e), 1);
+   WriteLn;
+
+   WriteCard(d, 1);
+   WriteString(" XOR ");
+   WriteCard(e, 1);
+   WriteString(" shifted left 1 is ");
+   WriteCard(BWXOR(d, SHL(e, 1)), 1);
+   WriteLn;
+
+
 END BitwiseTests.

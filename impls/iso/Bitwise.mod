@@ -82,7 +82,7 @@ BEGIN
       END;
    END;
 
-   FOR i := 0 TO shiftFactor DO
+   FOR i := 0 TO shiftFactor-1 DO
       SETBIT(target, i, FALSE);
    END;
 
@@ -98,7 +98,7 @@ VAR
    i, target: CARDINAL;
 
 BEGIN
-   FOR i := MAXBITS TO 0 BY -1 DO
+   FOR i := MAXBITS TO shiftFactor BY -1 DO
       IF BIT(value, i) THEN
          SETBIT(target, i-shiftFactor, TRUE);
       ELSE
@@ -160,7 +160,7 @@ BEGIN
    CardinalToBS(bitmap[0], op1);
    CardinalToBS(bitmap[1], op2);
 
-   bitmap[2] := bitmap[0] - bitmap[1];
+   bitmap[2] := bitmap[0] * bitmap[1];
 
    BSToCardinal(target, bitmap[2]);
    RETURN target;

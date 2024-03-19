@@ -18,9 +18,9 @@ tests: $(INC)/Bitwise.def $(OBJ)/Bitwise.o
 	-o $(BIN)/BitwiseTests
 
 
-generic: $(SRC)/generic/Bitwise.mod $(INC)/Bitwise.def
+iso: $(SRC)/iso/Bitwise.mod $(INC)/Bitwise.def
 	$(COMPILER) $(FLAGS) -I$(INC)/ \
-	-c $(SRC)/generic/Bitwise.mod \
+	-c $(SRC)/iso/Bitwise.mod \
 	-o $(OBJ)/Bitwise.o
 
 
