@@ -17,39 +17,35 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. *)
 MODULE BitwiseTests;
 
 FROM STextIO IMPORT WriteString, WriteLn;
-FROM SWholeIO IMPORT WriteCard, WriteInt;
-FROM Bitwise IMPORT BIT, SETBIT, BWNOT,
-                    SHL, SHR, ASHR, ROTL, ROTR,
-                    BWAND, BWOR, BWXOR;
+FROM SWholeIO IMPORT WriteCard;
+FROM CardBitOps IMPORT bit, SetBit, ClearBit,
+                       shl, shr, ashr, rotl, rotr,
+                       bwNot, bwAnd, bwOr, bwXor;
 
 VAR
    a, b, c, d, e, f: CARDINAL;
-   n, m: INTEGER;
 
 BEGIN
    a := 0;
    b := 6;
-   c  := 0FFFFFFFFH;
+   c := 0FFFFFFFFH;
    d := 170;         (* 10101010 *)
    e := 85;          (* 01010101 *)
    f := 0DEADBEEFH;
-
-   n := 128;
-   m := -128;
 
 
    WriteString("a = ");
    WriteCard(a, 1);
    WriteString(", NOT a = ");
-   WriteCard(BWNOT(a), 1);
+   WriteCard(bwNot(a), 1);
    WriteString(", bit 3 is ");
-   IF BIT(a, 3) THEN
+   IF bit(a, 3) THEN
       WriteString("set");
    ELSE
       WriteString("clear");
    END;
    WriteString(", bit 2 is ");
-   IF BIT(a, 2) THEN
+   IF bit(a, 2) THEN
       WriteString("set");
    ELSE
       WriteString("clear");
@@ -59,15 +55,15 @@ BEGIN
    WriteString("b = ");
    WriteCard(b, 1);
    WriteString(", NOT b = ");
-   WriteCard(BWNOT(b), 1);
+   WriteCard(bwNot(b), 1);
    WriteString(", bit 3 is ");
-   IF BIT(b, 3) THEN
+   IF bit(b, 3) THEN
       WriteString("set");
    ELSE
       WriteString("clear");
    END;
    WriteString(", bit 2 is ");
-   IF BIT(b, 2) THEN
+   IF bit(b, 2) THEN
       WriteString("set");
    ELSE
       WriteString("clear");
@@ -77,15 +73,15 @@ BEGIN
    WriteString("c = ");
    WriteCard(c, 1);
    WriteString(", NOT c = ");
-   WriteCard(BWNOT(c), 1);
+   WriteCard(bwNot(c), 1);
    WriteString(", bit 3 is ");
-   IF BIT(c, 3) THEN
+   IF bit(c, 3) THEN
       WriteString("set");
    ELSE
       WriteString("clear");
    END;
    WriteString(", bit 2 is ");
-   IF BIT(c, 2) THEN
+   IF bit(c, 2) THEN
       WriteString("set");
    ELSE
       WriteString("clear");
@@ -94,54 +90,54 @@ BEGIN
 
    WriteCard(b, 1);
    WriteString(" shifted left by 1 is ");
-   WriteCard(SHL(b, 1), 1);
+   WriteCard(Shl(b, 1), 1);
    WriteLn;
    WriteCard(b, 1);
    WriteString(" shifted right by 1 is ");
-   WriteCard(SHR(b, 1), 1);
+   WriteCard(Shr(b, 1), 1);
    WriteLn;
    WriteCard(c, 1);
    WriteString(" shifted right by 2 is ");
-   WriteCard(SHR(c, 2), 1);
+   WriteCard(Shr(c, 2), 1);
    WriteLn;
 
    WriteCard(d, 1);
    WriteString(" shifted right by 1 is ");
-   WriteCard(SHR(d, 1), 1);
+   WriteCard(Shr(d, 1), 1);
    WriteLn;
 
    WriteCard(e, 1);
    WriteString(" shifted left by 1 is ");
-   WriteCard(SHL(e, 1), 1);
+   WriteCard(Shl(e, 1), 1);
    WriteLn;
 
    WriteCard(f, 2);
    WriteString(" shifted left by 2 is ");
-   WriteCard(SHL(f, 2), 1);
+   WriteCard(Shl(f, 2), 1);
    WriteLn;
 
    WriteCard(f, 2);
    WriteString(" shifted right by 2 is ");
-   WriteCard(SHR(f, 2), 1);
+   WriteCard(Shr(f, 2), 1);
    WriteLn;
 
    WriteCard(d, 1);
    WriteString(" shifted left by 4 is ");
-   WriteCard(SHL(d, 4), 1);
+   WriteCard(Shl(d, 4), 1);
    WriteLn;
    WriteCard(e, 1);
    WriteString(" shifted left by 5 is ");
-   WriteCard(SHL(e, 5), 1);
+   WriteCard(Shl(e, 5), 1);
    WriteLn;
 
    WriteInt(n, 1);
    WriteString(" shifted right by 1 is ");
-   WriteInt(ASHR(n, 1), 1);
+   WriteInt(ashr(n, 1), 1);
    WriteLn;
 
    WriteInt(m, 1);
    WriteString(" shifted right by 1 is ");
-   WriteInt(ASHR(m, 1), 1);
+   WriteInt(ashr(m, 1), 1);
    WriteLn;
 
 
@@ -191,26 +187,26 @@ BEGIN
    WriteString(" AND ");
    WriteCard(e, 1);
    WriteString(" is ");
-   WriteCard(BWAND(d, e), 1);
+   WriteCard(bwAnd(d, e), 1);
    WriteLn;
    WriteCard(d, 1);
    WriteString(" OR ");
    WriteCard(e, 1);
    WriteString(" is ");
-   WriteCard(BWOR(d, e), 1);
+   WriteCard(bwOr(d, e), 1);
    WriteLn;
    WriteCard(d, 1);
    WriteString(" XOR ");
    WriteCard(e, 1);
    WriteString(" is ");
-   WriteCard(BWXOR(d, e), 1);
+   WriteCard(bwXor(d, e), 1);
    WriteLn;
 
    WriteCard(d, 1);
    WriteString(" XOR ");
    WriteCard(e, 1);
    WriteString(" shifted left 1 is ");
-   WriteCard(BWXOR(d, SHL(e, 1)), 1);
+   WriteCard(bwXor(d, SHL(e, 1)), 1);
    WriteLn;
 
 

@@ -1,0 +1,151 @@
+(* Copyright (C) 2024 Alice Osako *)
+(* Portions Copyright (c) 2020 Modula-2 Software Foundation. *)
+(*
+Modula-2 Portable Bit Manipulation API is free software; you can
+redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3, or (at your option)
+any later version.
+
+Modula-2 Portable Bit Manipulation API is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License along
+with this package; see the file COPYING.  If not, write to the Free Software
+Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. *)
+
+DEFINITION MODULE CardBitOps; (* portable *)
+
+(* Bit Operations on Type CARDINAL *)
+
+
+CONST Bitwidth = TSIZE(CARDINAL) * 8 - 1;
+
+TYPE BitIndex = CARDINAL [0..Bitwidth-1];
+
+
+(* ---------------------------------------------------------------------------
+ * function shl( n, shiftFactor )
+ * ---------------------------------------------------------------------------
+ * Returns n shifted left by shiftFactor.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE shl ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
+
+
+(* ---------------------------------------------------------------------------
+ * function shr( n, shiftFactor )
+ * ---------------------------------------------------------------------------
+ * Returns n logically shifted right by shiftFactor.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE shr ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
+
+
+(* ---------------------------------------------------------------------------
+ * function ashr( n, shiftFactor )
+ * ---------------------------------------------------------------------------
+ * Returns n arithmetically shifted right by shiftFactor.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE ashr ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
+
+
+(* ---------------------------------------------------------------------------
+ * procedure shlc( n, carryBits, bitIndex )
+ * ---------------------------------------------------------------------------
+ * Left-shifts n by bitIndex and passes the shifted out bits in carryBits.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE shlc ( VAR n, carryBits : CARDINAL; bitIndex : BitIndex );
+
+
+(* ---------------------------------------------------------------------------
+ * function bit( n, bitIndex )
+ * ---------------------------------------------------------------------------
+ * Returns TRUE if the bit at bitIndex of n is set, otherwise FALSE.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE bit ( n : CARDINAL; bitIndex : BitIndex ) : BOOLEAN;
+
+
+(* ---------------------------------------------------------------------------
+ * procedure SetBit( n, bitIndex )
+ * ---------------------------------------------------------------------------
+ * Sets the bit at bitIndex of n.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE SetBit ( VAR n : CARDINAL; bitIndex : BitIndex );
+
+
+(* ---------------------------------------------------------------------------
+ * procedure ClearBit( n, bitIndex )
+ * ---------------------------------------------------------------------------
+ * Clears the bit at bitIndex of n.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE ClearBit ( VAR n : CARDINAL; bitIndex : BitIndex );
+
+(* ---------------------------------------------------------------------------
+ * procedure ToggleBit( n, bitIndex )
+ * ---------------------------------------------------------------------------
+ * Sets the bit at bitIndex of n if it is clear, otherwise clears it.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE ToggleBit ( VAR n : CARDINAL; bitIndex : BitIndex );
+
+
+(* ---------------------------------------------------------------------------
+ * procedure ClearLSBtoN( n, bitIndex )
+ * ---------------------------------------------------------------------------
+ * Clears the bits of n in range [0 .. bitIndex].
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE ClearLSBtoN ( VAR n : CARDINAL; bitIndex : BitIndex );
+
+
+(* ---------------------------------------------------------------------------
+ * procedure ClearMSBtoN( n, bitIndex )
+ * ---------------------------------------------------------------------------
+ * Clears the bits of n in range [bitIndex .. Bitwidth-1].
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE ClearMSBtoN ( VAR n : CARDINAL; bitIndex : BitIndex );
+
+
+(* ---------------------------------------------------------------------------
+ * function bwNot( n )
+ * ---------------------------------------------------------------------------
+ * Invert the bits of n.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE bwNot (n: CARDINAL): CARDINAL;
+
+
+(* ---------------------------------------------------------------------------
+ * function bwAnd( n )
+ * ---------------------------------------------------------------------------
+ * Get the bitwise AND of n and m.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE bwAnd (n : CARDINAL; m : CARDINAL): CARDINAL;
+
+
+(* ---------------------------------------------------------------------------
+ * function bwOr( n )
+ * ---------------------------------------------------------------------------
+ * Get the bitwise OR of n and m.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE bwOr (n : CARDINAL; m : CARDINAL): CARDINAL;
+
+
+(* ---------------------------------------------------------------------------
+ * function bwXor( n )
+ * ---------------------------------------------------------------------------
+ * Get the bitwise XOR of n and m.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE bwXor (n : CARDINAL; m : CARDINAL): CARDINAL;
+
+END CardBitOps.

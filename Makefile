@@ -4,7 +4,7 @@ AUX      := Makefile README.md LICENSE .gitignore
 
 CC_PATH  := $(HOME)/opt/bin
 COMPILER := $(CC_PATH)/gm2
-FLAGS    := -g
+FLAGS    := -g -freport-bug
 INC      := defs
 SRC      := impls
 OBJ      := objs
@@ -12,19 +12,19 @@ BIN      := bin
 TESTS    := tests
 
 
-tests: $(INC)/Bitwise.def $(OBJ)/Bitwise.o
+tests: $(INC)/CardBitOps.def $(OBJ)/CardBitOps.o
 	$(COMPILER) $(FLAGS) -I$(INC)/ \
-	$(OBJ)/Bitwise.o $(TESTS)/BitwiseTests.mod \
-	-o $(BIN)/BitwiseTests
+	$(OBJ)/CardBitOps.o $(TESTS)/CardBitOpsTests.mod \
+	-o $(BIN)/CardBitOpsTests
 
 
-iso: $(SRC)/iso/Bitwise.mod $(INC)/Bitwise.def
+portable: $(SRC)/portable/CardBitOps.mod $(INC)/CardBitOps.def
 	$(COMPILER) $(FLAGS) -I$(INC)/ \
-	-c $(SRC)/iso/Bitwise.mod \
-	-o $(OBJ)/Bitwise.o
+	-c $(SRC)/portable/CardBitOps.mod \
+	-o $(OBJ)/CardBitOps.o
 
 
-gnu: $(SRC)/gnu/Bitwise.mod $(INC)/Bitwise.def
+gnu: $(SRC)/gnu/CardBitOps.mod $(INC)/CardBitOps.def
 	$(COMPILER) $(FLAGS) -I$(INC)/ \
-	-c $(SRC)/gnu/Bitwise.mod \
-	-o $(OBJ)/Bitwise.o
+	-c $(SRC)/gnu/CardBitOps.mod \
+	-o $(OBJ)/CardBitOps.o
