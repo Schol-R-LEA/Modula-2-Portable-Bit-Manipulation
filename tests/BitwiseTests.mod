@@ -17,11 +17,14 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. *)
 MODULE BitwiseTests;
 
 FROM STextIO IMPORT WriteString, WriteLn;
-FROM SWholeIO IMPORT WriteCard;
-FROM Bitwise IMPORT BIT, SETBIT, BWNOT, SHL, SHR, BWAND, BWOR, BWXOR;
+FROM SWholeIO IMPORT WriteCard, WriteInt;
+FROM Bitwise IMPORT BIT, SETBIT, BWNOT,
+                    SHL, SHR, ASHR, ROTL, ROTR,
+                    BWAND, BWOR, BWXOR;
 
 VAR
-   a, b, c, d, e: CARDINAL;
+   a, b, c, d, e, f: CARDINAL;
+   n, m: INTEGER;
 
 BEGIN
    a := 0;
@@ -29,6 +32,11 @@ BEGIN
    c  := 0FFFFFFFFH;
    d := 170;         (* 10101010 *)
    e := 85;          (* 01010101 *)
+   f := 0DEADBEEFH;
+
+   n := 128;
+   m := -128;
+
 
    WriteString("a = ");
    WriteCard(a, 1);
@@ -84,9 +92,13 @@ BEGIN
    END;
    WriteLn;
 
-   WriteCard(SHR(SHL(b, 1), 1), 1);
+   WriteCard(b, 1);
    WriteString(" shifted left by 1 is ");
    WriteCard(SHL(b, 1), 1);
+   WriteLn;
+   WriteCard(b, 1);
+   WriteString(" shifted right by 1 is ");
+   WriteCard(SHR(b, 1), 1);
    WriteLn;
    WriteCard(c, 1);
    WriteString(" shifted right by 2 is ");
@@ -103,6 +115,16 @@ BEGIN
    WriteCard(SHL(e, 1), 1);
    WriteLn;
 
+   WriteCard(f, 2);
+   WriteString(" shifted left by 2 is ");
+   WriteCard(SHL(f, 2), 1);
+   WriteLn;
+
+   WriteCard(f, 2);
+   WriteString(" shifted right by 2 is ");
+   WriteCard(SHR(f, 2), 1);
+   WriteLn;
+
    WriteCard(d, 1);
    WriteString(" shifted left by 4 is ");
    WriteCard(SHL(d, 4), 1);
@@ -111,6 +133,59 @@ BEGIN
    WriteString(" shifted left by 5 is ");
    WriteCard(SHL(e, 5), 1);
    WriteLn;
+
+   WriteInt(n, 1);
+   WriteString(" shifted right by 1 is ");
+   WriteInt(ASHR(n, 1), 1);
+   WriteLn;
+
+   WriteInt(m, 1);
+   WriteString(" shifted right by 1 is ");
+   WriteInt(ASHR(m, 1), 1);
+   WriteLn;
+
+
+   WriteCard(ROTR(ROTL(b, 1), 1), 1);
+   WriteString(" rotated left by 1 is ");
+   WriteCard(ROTL(b, 1), 1);
+   WriteLn;
+   WriteCard(ROTR(ROTL(b, 1), 1), 1);
+   WriteString(" rotated right by 1 is ");
+   WriteCard(ROTR(b, 1), 1);
+   WriteLn;
+
+   WriteCard(ROTR(ROTL(c, 1), 1), 1);
+   WriteString(" rotated right by 2 is ");
+   WriteCard(ROTR(c, 2), 1);
+   WriteLn;
+
+   WriteCard(ROTR(ROTL(d, 1), 1), 1);
+   WriteString(" rotated left by 1 is ");
+   WriteCard(ROTL(d, 1), 1);
+   WriteLn;
+   WriteCard(ROTR(ROTL(d, 1), 1), 1);
+   WriteString(" rotated right by 1 is ");
+   WriteCard(ROTR(d, 1), 1);
+   WriteLn;
+
+   WriteCard(ROTR(ROTL(e, 1), 1), 1);
+   WriteString(" rotated left by 1 is ");
+   WriteCard(ROTL(e, 1), 1);
+   WriteLn;
+   WriteCard(ROTR(ROTL(e, 1), 1), 1);
+   WriteString(" rotated right by 1 is ");
+   WriteCard(ROTR(e, 1), 1);
+   WriteLn;
+
+   WriteCard(ROTR(ROTL(d, 1), 1), 1);
+   WriteString(" rotated left by 4 is ");
+   WriteCard(ROTL(d, 4), 1);
+   WriteLn;
+   WriteCard(ROTR(ROTL(e, 1), 1), 1);
+   WriteString(" rotated left by 5 is ");
+   WriteCard(ROTL(e, 5), 1);
+   WriteLn;
+
 
    WriteCard(d, 1);
    WriteString(" AND ");

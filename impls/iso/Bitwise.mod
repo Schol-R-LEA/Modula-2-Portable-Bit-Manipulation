@@ -18,11 +18,16 @@ IMPLEMENTATION MODULE Bitwise;
 
 IMPORT SYSTEM;
 
+CONST
+   MAXBITS = 31;   (* This should be set manually for a given version of Modula-2 *)
+
+
 TYPE
-   TransferType = (Card, BSet);
+   BSetCardTransferType = (Card, BSet);
+   CardIntTransferType = (Whole, Int);
 
    CardinalToBitsetTransfer = RECORD
-      CASE tag: TransferType OF
+      CASE tag: BSetCardTransferType OF
          Card:
             c: CARDINAL; |
          BSet:
@@ -30,8 +35,14 @@ TYPE
       END;
    END;
 
-CONST
-   MAXBITS = 31;   (* This should be set manually for a given version of Modula-2 *)
+   CardinalToIntegerTransfer = RECORD
+      CASE tag: CardIntTransferType OF
+         Whole:
+            c: CARDINAL; |
+         Int:
+            i: INTEGER;
+   END;
+END;
 
 VAR
    MaxBitmap: BITSET;
@@ -74,20 +85,20 @@ VAR
    i, target: CARDINAL;
 
 BEGIN
-   FOR i := 0 TO MAXBITS-shiftFactor DO
-      IF BIT(value, i) THEN
-         SETBIT(target, i+shiftFactor, TRUE);
-      ELSE
-         SETBIT(target, i+shiftFactor, FALSE);
+   IF shiftFactor > MAXBITS THEN
+      RETURN 0;
+   ELSE
+
+      FOR i := 0 TO MAXBITS-shiftFactor DO
+         SETBIT(target, i+shiftFactor, BIT(value, i));
       END;
+
+      FOR i := 0 TO shiftFactor-1 DO
+         SETBIT(target, i, FALSE);
+      END;
+
+      RETURN target;
    END;
-
-   FOR i := 0 TO shiftFactor-1 DO
-      SETBIT(target, i, FALSE);
-   END;
-
-   RETURN target;
-
 END SHL;
 
 
@@ -98,19 +109,19 @@ VAR
    i, target: CARDINAL;
 
 BEGIN
-   FOR i := MAXBITS TO shiftFactor BY -1 DO
-      IF BIT(value, i) THEN
-         SETBIT(target, i-shiftFactor, TRUE);
-      ELSE
-         SETBIT(target, i-shiftFactor, FALSE);
+   IF shiftFactor > MAXBITS THEN
+      RETURN 0;
+   ELSE
+      FOR i := MAXBITS TO shiftFactor BY -1 DO
+         SETBIT(target, i-shiftFactor, BIT(value, i));
       END;
-   END;
 
-   FOR i := MAXBITS TO MAXBITS-shiftFactor+1 BY -1 DO
-      SETBIT(target, i, FALSE);
-   END;
+      FOR i := MAXBITS TO MAXBITS-shiftFactor+1 BY -1 DO
+         SETBIT(target, i, FALSE);
+      END;
 
-   RETURN target;
+      RETURN target;
+   END;
 END SHR;
 
 
@@ -118,21 +129,73 @@ END SHR;
 PROCEDURE ASHR(value: INTEGER; shiftFactor: CARDINAL): INTEGER;
 (* ASHR - Shift a given value to the right by a certain number of bits,
           sign extended.  *)
+VAR
+   i, xfer, dest: CARDINAL;
+   target: INTEGER;
+   sign: BOOLEAN;
+
 BEGIN
-   RETURN 0;
+   IF shiftFactor > MAXBITS THEN
+      RETURN 0;
+   ELSE
+      IntegerToCardinal(xfer, value);
+      sign := BIT(xfer, MAXBITS);
+
+      FOR i := MAXBITS TO shiftFactor BY -1 DO
+         SETBIT(dest, i-shiftFactor, BIT(xfer, i));
+      END;
+
+      FOR i := MAXBITS TO MAXBITS-shiftFactor+1 BY -1 DO
+         SETBIT(dest, i, sign);
+      END;
+      CardinalToInteger(target, dest);
+      RETURN target;
+   END;
 END ASHR;
+
 
 PROCEDURE ROTL(value: CARDINAL; shiftFactor: CARDINAL): CARDINAL;
 (* ROTL - Rotate a given value to the left by a certain number of bits. *)
+VAR
+   i, target, simplifiedShiftFactor: CARDINAL;
+
 BEGIN
-   RETURN 0;
+   simplifiedShiftFactor := shiftFactor MOD MAXBITS;
+   IF simplifiedShiftFactor = 0 THEN
+      RETURN value;
+   ELSE
+      FOR i := 0 TO simplifiedShiftFactor DO
+         SETBIT(target, i - simplifiedShiftFactor, BIT(value, i));
+      END;
+
+      FOR i := MAXBITS TO simplifiedShiftFactor BY -1 DO
+         SETBIT(target, i + simplifiedShiftFactor, BIT(value, i));
+      END;
+      RETURN target;
+   END;
 END ROTL;
+
 
 PROCEDURE ROTR(value: CARDINAL; shiftFactor: CARDINAL): CARDINAL;
 (* ROTR - Rotate a given value to the right by a certain number of bits. *)
+VAR
+   i, target, simplifiedShiftFactor: CARDINAL;
 
 BEGIN
-   RETURN 0;
+   simplifiedShiftFactor := shiftFactor MOD MAXBITS;
+   IF simplifiedShiftFactor = 0 THEN
+      RETURN value;
+   ELSE
+      FOR i := 0 TO simplifiedShiftFactor DO
+            SETBIT(target, i + simplifiedShiftFactor, BIT(value, i));
+      END;
+
+      FOR i := MAXBITS TO simplifiedShiftFactor BY -1 DO
+         SETBIT(target, i - simplifiedShiftFactor, BIT(value, i));
+      END;
+
+      RETURN target;
+   END;
 END ROTR;
 
 
@@ -223,6 +286,29 @@ BEGIN
    target := xfer.c;
 END BSToCardinal;
 
+
+
+PROCEDURE CardinalToInteger(VAR target: INTEGER; source: CARDINAL);
+VAR
+   xfer: CardinalToIntegerTransfer;
+
+BEGIN
+   xfer.tag := Whole;
+   xfer.c := source;
+   xfer.tag := Int;
+   target := xfer.i;
+END CardinalToInteger;
+
+
+PROCEDURE IntegerToCardinal(VAR target: CARDINAL; source: INTEGER);
+VAR
+   xfer: CardinalToIntegerTransfer;
+BEGIN
+   xfer.tag := Int;
+   xfer.i := source;
+   xfer.tag := Whole;
+   target := xfer.c;
+END IntegerToCardinal;
 
 BEGIN
    MaxBitmap := {0..MAXBITS};
