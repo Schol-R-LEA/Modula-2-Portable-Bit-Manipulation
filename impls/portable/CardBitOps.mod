@@ -44,14 +44,17 @@ VAR
   pivotalBit : BitIndex;
 
 BEGIN
-  IF shiftFactor = 0 THEN
+  IF n = 0 THEN
+    (* NOP *)
+
+  ELSIF shiftFactor = 0 THEN
     (* NOP *)
 
   (* shifting by 1 .. Bitwidth-1 *)
   ELSIF shiftFactor < Bitwidth THEN
 
-    (* bit at position Bitwidth - shiftFactor is pivotal *)
-    pivotalBit := Bitwidth - shiftFactor;
+    (* bit at position BitMax - shiftFactor is pivotal *)
+    pivotalBit := BitMax - shiftFactor;
 
     (* compute bits that will be shifted out of n *)
     carryBits := n DIV powerOf2[pivotalBit];
@@ -62,8 +65,8 @@ BEGIN
     (* shift safely *)
     n := n * powerOf2[shiftFactor]
     
-  (* shifting by Bitwidth *)
-  ELSE (* shiftFactor = Bitwidth *)
+  (* shifting by BitMax *)
+  ELSE (* shiftFactor = BitMax *)
     n := 0
   END; (* IF *)
   
@@ -95,19 +98,22 @@ VAR
   pivotalBit : BitIndex;
 
 BEGIN
-  IF shiftFactor = 0 THEN
+  IF n = 0 THEN
+    (* NOP *)
+
+  ELSIF shiftFactor = 0 THEN
     (* NOP *)
 
   (* shifting by 1 .. Bitwidth-1 *)
   ELSIF shiftFactor < Bitwidth THEN
-    (* bit at position Bitwidth - shiftFactor is pivotal *)
-    pivotalBit := Bitwidth - shiftFactor;
+    (* bit at position BitMax - shiftFactor is pivotal *)
+    pivotalBit := shiftFactor;
 
     (* shift *)
     n := n DIV powerOf2[pivotalBit]
 
-  (* shifting by Bitwidth *)
-  ELSE (* shiftFactor = Bitwidth *)
+  (* shifting by BitMax *)
+  ELSE (* shiftFactor = BitMax *)
     n := 0
   END; (* IF *)
 
@@ -132,41 +138,52 @@ END shr;
  *  bit index | n-1 | n-2 | n-3 |   . . .   |  3  |  2  |  1  |  0  |  after
  *            +-----+-----+-----+           +-----+-----+-----+-----+
  * ------------------------------------------------------------------------ *)
-     
+
 PROCEDURE ashr ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
 
 VAR
   pivotalBit : BitIndex;
+  mask : CARDINAL;
 
 BEGIN
-  IF shiftFactor > 0 THEN
+  IF n = 0 THEN
     (* NOP *)
-    
-  (* shifting by 1 .. Bitwidth-1 *)
-  ELSIF shiftFactor < Bitwidth THEN
-    (* bit at position Bitwidth - shiftFactor is pivotal *)
+
+  ELSIF shiftFactor = 0 THEN
+    (* NOP *)
+
+  ELSIF n = MAX(CARDINAL) THEN
+    (* NOP *)
+
+  (* shifting by 1 .. BitMax-1 *)
+  ELSIF shiftFactor < BitMax THEN
+    (* bit at position shiftFactor is pivotal *)
     pivotalBit := Bitwidth - shiftFactor;
-    
-    IF NOT bit(n, Bitwidth-1) THEN
+
+    IF NOT bit(n, BitMax) THEN
       (* shift *)
-      n := n DIV powerOf2[pivotalBit]
-      
+      n := n DIV powerOf2[shiftFactor]
+
     ELSE (* high bit set *)
-      
+
       (* shift *)
-      n := n DIV powerOf2[pivotalBit];
-      
+      n := n DIV powerOf2[shiftFactor];
+
       (* compute mask to set high bits *)
       mask := MAX(CARDINAL) DIV powerOf2[pivotalBit];
       mask := mask * powerOf2[pivotalBit];
-      
+
       (* add mask to n, thereby setting high bits *)
       n := n + mask
     END (* IF *)
-    
-  (* shifting by Bitwidth *)
-  ELSE (* shiftFactor = Bitwidth *)
-    n := MAX(CARDINAL)
+
+  (* shifting by BitMax *)
+  ELSE (* shiftFactor = BitMax *)
+    IF bit(n, BitMax) THEN
+      n := MAX(CARDINAL)
+    ELSE
+      n := 0
+    END;
   END; (* IF *)
   
   RETURN n
@@ -174,12 +191,12 @@ END ashr;
 
 
 (* ---------------------------------------------------------------------------
- * procedure shlc( n, carryBits, bitIndex )
+ * procedure shlc( n, carryBits, shiftFactor )
  * ---------------------------------------------------------------------------
  * Left shifts n by bitIndex and passes the shifted out bits in carryBits.
  * ------------------------------------------------------------------------ *)
 
-PROCEDURE shlc ( VAR n, carryBits : CARDINAL; bitIndex : BitIndex );
+PROCEDURE shlc ( VAR n, carryBits : CARDINAL; shiftFactor : BitIndex );
 
 VAR
   pivotalBit : BitIndex;
@@ -189,10 +206,10 @@ BEGIN
   IF shiftFactor = 0 THEN
     carryBits := 0
     
-  (* shifting by 1 .. Bitwidth-1 *)
-  ELSIF shiftFactor < Bitwidth THEN
-    (* bit at position Bitwidth - shiftFactor is pivotal *)
-    pivotalBit := Bitwidth - shiftFactor;
+  (* shifting by 1 .. BitMax-1 *)
+  ELSIF shiftFactor < BitMax THEN
+    (* bit at position BitMax - shiftFactor is pivotal *)
+    pivotalBit := BitMax - shiftFactor;
     
     (* compute bits that will be shifted out of n *)
     carryBits := n DIV powerOf2[pivotalBit];
@@ -203,11 +220,52 @@ BEGIN
     (* shift safely *)
     n := n * powerOf2[shiftFactor]
     
-  (* shifting by Bitwidth *)
-  ELSE (* shiftFactor = Bitwidth *)
+  (* shifting by BitMax *)
+  ELSE (* shiftFactor = BitMax *)
     carryBits := n; n := 0
   END (* IF *)
 END shlc;
+
+
+(* ---------------------------------------------------------------------------
+ * function rotl( n, shiftFactor )
+ * ---------------------------------------------------------------------------
+ * Returns n rotated left by shiftFactor.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE rotl ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
+
+VAR
+  upper, lower: CARDINAL;
+
+BEGIN
+  upper := n;
+  ClearLSBtoN(upper, shiftFactor-1);
+  upper := shl(upper, shiftFactor);
+  lower := shr(n, Bitwidth - shiftFactor);
+  RETURN upper + lower;
+END rotl;
+
+
+(* ---------------------------------------------------------------------------
+ * function rotr( n, shiftFactor )
+ * ---------------------------------------------------------------------------
+ * Returns n logically rotated right by shiftFactor.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE rotr ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
+
+VAR
+  upper, lower: CARDINAL;
+
+BEGIN
+  lower := n;
+  ClearMSBtoN(lower, Bitwidth - shiftFactor);
+  upper := shr(n, shiftFactor);
+  lower := shr(lower, Bitwidth - shiftFactor);
+  RETURN upper + lower;
+END rotr;
+
 
 
 (* ---------------------------------------------------------------------------
@@ -257,7 +315,7 @@ END ClearBit;
  * ---------------------------------------------------------------------------
  * Sets the bit at bitIndex of n if it is clear, otherwise clears it.
  * ------------------------------------------------------------------------ *)
-
+(*
 PROCEDURE ToggleBit ( VAR n : CARDINAL; bitIndex : BitIndex );
 
 BEGIN
@@ -267,7 +325,7 @@ BEGIN
     n := n + powerOf2[bitIndex]
   END
 END ToggleBit;
-
+*)
 
 (* ---------------------------------------------------------------------------
  * procedure ClearLSBtoN( n, bitIndex )
@@ -279,7 +337,7 @@ PROCEDURE ClearLSBtoN ( VAR n : CARDINAL; bitIndex : BitIndex );
 
 BEGIN
   (* clearing to MSB produces all zeroes *)
-  IF bitIndex = Bitwidth-1 THEN
+  IF bitIndex = BitMax-1 THEN
     n := 0;
     RETURN
   END; (* IF *)
@@ -293,7 +351,7 @@ END ClearLSBtoN;
 (* ---------------------------------------------------------------------------
  * procedure ClearMSBtoN( n, bitIndex )
  * ---------------------------------------------------------------------------
- * Clears the bits of n in range [bitIndex .. Bitwidth-1].
+ * Clears the bits of n in range [bitIndex .. BitMax-1].
  * ------------------------------------------------------------------------ *)
 
 PROCEDURE ClearMSBtoN ( VAR n : CARDINAL; bitIndex : BitIndex );
@@ -330,15 +388,20 @@ VAR
   i, target: CARDINAL;
 
 BEGIN
-  FOR i := 0 TO Bitwidth DO
-    IF bit(n, i) THEN
-      ClearBit(target, i);
-    ELSE
-      SetBit(target, i);
+  IF n = 0 THEN
+    RETURN n;
+  ELSE
+    FOR i := 0 TO BitMax-1 DO
+      IF bit(n, i) THEN
+        ClearBit(target, i);
+      ELSE
+        SetBit(target, i);
+      END;
     END;
+    RETURN target;
   END;
-  RETURN target;
 END bwNot;
+
 
 (* ---------------------------------------------------------------------------
  * procedure bwAnd( n , m )
@@ -351,14 +414,18 @@ VAR
   i, target: CARDINAL;
 
 BEGIN
-  FOR i := 0 TO Bitwidth DO
-    IF bit(n, i) AND bit(m, i) THEN
-      SetBit(target, i);
-    ELSE
-      ClearBit(target, i);
+  IF (n = 0) OR (m = 0) THEN
+    RETURN 0;
+  ELSE
+    FOR i := 0 TO BitMax-1 DO
+      IF bit(n, i) AND bit(m, i) THEN
+        SetBit(target, i);
+      ELSE
+        ClearBit(target, i);
+      END;
     END;
+    RETURN target;
   END;
-  RETURN target;
 END bwAnd;
 
 
@@ -368,21 +435,30 @@ END bwAnd;
  * Get the bitwise OR of n and m.
  * ------------------------------------------------------------------------ *)
 
+
 PROCEDURE bwOr (n : CARDINAL; m : CARDINAL): CARDINAL;
 VAR
   i, target: CARDINAL;
 
 BEGIN
-  FOR i := 0 TO Bitwidth DO
-    IF bit(n, i) OR bit(m, i) THEN
-      SetBit(target, i);
-    ELSE
-      ClearBit(target, i);
+  IF (n = 0) AND (m = 0) THEN
+    RETURN 0;
+  ELSIF n = 0 THEN
+    RETURN m;
+  ELSIF m = 0 THEN
+    RETURN n;
+  ELSE
+    FOR i := 0 TO BitMax-1 DO
+      IF bit(n, i) OR bit(m, i) THEN
+        SetBit(target, i);
+      ELSE
+        ClearBit(target, i);
+      END;
     END;
+    RETURN target;
   END;
-  RETURN target;
-
 END bwOr;
+
 
 (* ---------------------------------------------------------------------------
  * procedure bwXor( n , m )
@@ -390,19 +466,28 @@ END bwOr;
  * Get the bitwise XOR of n and m.
  * ------------------------------------------------------------------------ *)
 
+
 PROCEDURE bwXor (n : CARDINAL; m : CARDINAL): CARDINAL;
 VAR
   i, target: CARDINAL;
 
 BEGIN
-  FOR i := 0 TO Bitwidth DO
-    IF (bit(n, i) OR bit(m, i)) AND NOT (bit(n, i) AND bit(m, i)) THEN
-      SetBit(target, i);
-    ELSE
-      ClearBit(target, i);
+  IF ((n = 0) AND (m = 0)) OR (n = m) THEN
+    RETURN 0;
+  ELSIF n = 0 THEN
+    RETURN m;
+  ELSIF m = 0 THEN
+    RETURN n;
+  ELSE
+    FOR i := 0 TO BitMax-1 DO
+      IF (bit(n, i) OR bit(m, i)) AND NOT (bit(n, i) AND bit(m, i)) THEN
+        SetBit(target, i);
+      ELSE
+        ClearBit(target, i);
+      END;
     END;
+    RETURN target;
   END;
-  RETURN target;
 END bwXor;
 
 
@@ -426,13 +511,13 @@ PROCEDURE InitPow2Table;
 
 VAR
   index : BitIndex;
-  
+
 BEGIN
   powerOf2[0] := 1;
-  FOR index := 1 TO Bitwidth-2 DO
+  FOR index := 1 TO BitMax DO
     powerOf2[index] := powerOf2[index-1] * 2
   END; (* FOR *)
-  powerOf2[Bitwidth-1] := MAX(CARDINAL)
+  (* powerOf2[Bitwidth-1] := MAX(CARDINAL) *)
 END InitPow2Table;
 
 

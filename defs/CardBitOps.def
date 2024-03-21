@@ -17,11 +17,14 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. *)
 DEFINITION MODULE CardBitOps; (* portable *)
 
 (* Bit Operations on Type CARDINAL *)
+FROM SYSTEM IMPORT TSIZE ;
 
+CONST
+  Bitwidth = TSIZE(CARDINAL) * 8;
+  BitMax = Bitwidth - 1;
 
-CONST Bitwidth = TSIZE(CARDINAL) * 8 - 1;
-
-TYPE BitIndex = CARDINAL [0..Bitwidth-1];
+TYPE
+  BitIndex = CARDINAL [0..BitMax];
 
 
 (* ---------------------------------------------------------------------------
@@ -61,6 +64,25 @@ PROCEDURE shlc ( VAR n, carryBits : CARDINAL; bitIndex : BitIndex );
 
 
 (* ---------------------------------------------------------------------------
+ * function rotl( n, shiftFactor )
+ * ---------------------------------------------------------------------------
+ * Returns n rotated left by shiftFactor.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE rotl ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
+
+
+(* ---------------------------------------------------------------------------
+ * function rotr( n, shiftFactor )
+ * ---------------------------------------------------------------------------
+ * Returns n logically rotated right by shiftFactor.
+ * ------------------------------------------------------------------------ *)
+
+PROCEDURE rotr ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
+
+
+
+(* ---------------------------------------------------------------------------
  * function bit( n, bitIndex )
  * ---------------------------------------------------------------------------
  * Returns TRUE if the bit at bitIndex of n is set, otherwise FALSE.
@@ -92,7 +114,7 @@ PROCEDURE ClearBit ( VAR n : CARDINAL; bitIndex : BitIndex );
  * Sets the bit at bitIndex of n if it is clear, otherwise clears it.
  * ------------------------------------------------------------------------ *)
 
-PROCEDURE ToggleBit ( VAR n : CARDINAL; bitIndex : BitIndex );
+(* PROCEDURE ToggleBit ( VAR n : CARDINAL; bitIndex : BitIndex ); *)
 
 
 (* ---------------------------------------------------------------------------

@@ -14,25 +14,26 @@ with this package; see the file COPYING.  If not, write to the Free Software
 Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. *)
 
 
-MODULE BitwiseTests;
+MODULE CardBitOpsTests;
 
 FROM STextIO IMPORT WriteString, WriteLn;
 FROM SWholeIO IMPORT WriteCard;
 FROM CardBitOps IMPORT bit, SetBit, ClearBit,
-                       shl, shr, ashr, rotl, rotr,
+                       shl, shr, ashr,
+                       rotl, rotr,
                        bwNot, bwAnd, bwOr, bwXor;
 
 VAR
-   a, b, c, d, e, f: CARDINAL;
+   a, b, c, d, e, f, g: CARDINAL;
 
 BEGIN
    a := 0;
    b := 6;
-   c := 0FFFFFFFFH;
+   c := MAX(CARDINAL);
    d := 170;         (* 10101010 *)
    e := 85;          (* 01010101 *)
    f := 0DEADBEEFH;
-
+   g := 080000000H;   (* high bit set *)
 
    WriteString("a = ");
    WriteCard(a, 1);
@@ -90,96 +91,105 @@ BEGIN
 
    WriteCard(b, 1);
    WriteString(" shifted left by 1 is ");
-   WriteCard(Shl(b, 1), 1);
+   WriteCard(shl(b, 1), 1);
    WriteLn;
    WriteCard(b, 1);
    WriteString(" shifted right by 1 is ");
-   WriteCard(Shr(b, 1), 1);
+   WriteCard(shr(b, 1), 1);
    WriteLn;
    WriteCard(c, 1);
    WriteString(" shifted right by 2 is ");
-   WriteCard(Shr(c, 2), 1);
+   WriteCard(shr(c, 2), 1);
    WriteLn;
 
    WriteCard(d, 1);
    WriteString(" shifted right by 1 is ");
-   WriteCard(Shr(d, 1), 1);
+   WriteCard(shr(d, 1), 1);
    WriteLn;
 
    WriteCard(e, 1);
    WriteString(" shifted left by 1 is ");
-   WriteCard(Shl(e, 1), 1);
+   WriteCard(shl(e, 1), 1);
    WriteLn;
 
    WriteCard(f, 2);
    WriteString(" shifted left by 2 is ");
-   WriteCard(Shl(f, 2), 1);
+   WriteCard(shl(f, 2), 1);
    WriteLn;
 
    WriteCard(f, 2);
    WriteString(" shifted right by 2 is ");
-   WriteCard(Shr(f, 2), 1);
+   WriteCard(shr(f, 2), 1);
    WriteLn;
 
    WriteCard(d, 1);
    WriteString(" shifted left by 4 is ");
-   WriteCard(Shl(d, 4), 1);
+   WriteCard(shl(d, 4), 1);
    WriteLn;
    WriteCard(e, 1);
    WriteString(" shifted left by 5 is ");
-   WriteCard(Shl(e, 5), 1);
+   WriteCard(shl(e, 5), 1);
    WriteLn;
 
-   WriteInt(n, 1);
-   WriteString(" shifted right by 1 is ");
-   WriteInt(ashr(n, 1), 1);
+   WriteCard(c, 1);
+   WriteString(" arithmetically shifted right by 4 is ");
+   WriteCard(ashr(c, 4), 1);
    WriteLn;
 
-   WriteInt(m, 1);
-   WriteString(" shifted right by 1 is ");
-   WriteInt(ashr(m, 1), 1);
+   WriteCard(d, 1);
+   WriteString(" arithmetically shifted right by 4 is ");
+   WriteCard(ashr(d, 4), 1);
    WriteLn;
 
+   WriteCard(f, 1);
+   WriteString(" arithmetically shifted right by 4 is ");
+   WriteCard(ashr(f, 4), 1);
+   WriteLn;
 
-   WriteCard(ROTR(ROTL(b, 1), 1), 1);
+   WriteCard(g, 1);
+   WriteString(" arithmetically shifted right by 4 is ");
+   WriteCard(ashr(g, 4), 1);
+   WriteLn;
+
+   WriteCard(rotr(rotl(b, 1), 1), 1);
    WriteString(" rotated left by 1 is ");
-   WriteCard(ROTL(b, 1), 1);
+   WriteCard(rotl(b, 1), 1);
    WriteLn;
-   WriteCard(ROTR(ROTL(b, 1), 1), 1);
+   WriteCard(rotr(rotl(b, 1), 1), 1);
    WriteString(" rotated right by 1 is ");
-   WriteCard(ROTR(b, 1), 1);
+   WriteCard(rotr(b, 1), 1);
    WriteLn;
 
-   WriteCard(ROTR(ROTL(c, 1), 1), 1);
+   WriteCard(rotr(rotl(c, 1), 1), 1);
    WriteString(" rotated right by 2 is ");
-   WriteCard(ROTR(c, 2), 1);
+   WriteCard(rotr(c, 2), 1);
    WriteLn;
 
-   WriteCard(ROTR(ROTL(d, 1), 1), 1);
+   WriteCard(rotr(rotl(d, 1), 1), 1);
    WriteString(" rotated left by 1 is ");
-   WriteCard(ROTL(d, 1), 1);
+   WriteCard(rotl(d, 1), 1);
    WriteLn;
-   WriteCard(ROTR(ROTL(d, 1), 1), 1);
+   WriteCard(rotr(rotl(d, 1), 1), 1);
    WriteString(" rotated right by 1 is ");
-   WriteCard(ROTR(d, 1), 1);
+   WriteCard(rotr(d, 1), 1);
    WriteLn;
 
-   WriteCard(ROTR(ROTL(e, 1), 1), 1);
+   WriteCard(rotr(rotl(e, 1), 1), 1);
    WriteString(" rotated left by 1 is ");
-   WriteCard(ROTL(e, 1), 1);
+   WriteCard(rotl(e, 1), 1);
    WriteLn;
-   WriteCard(ROTR(ROTL(e, 1), 1), 1);
+   WriteCard(rotr(rotl(e, 1), 1), 1);
    WriteString(" rotated right by 1 is ");
-   WriteCard(ROTR(e, 1), 1);
+   WriteCard(rotr(e, 1), 1);
    WriteLn;
 
-   WriteCard(ROTR(ROTL(d, 1), 1), 1);
+   WriteCard(rotr(rotl(d, 1), 1), 1);
    WriteString(" rotated left by 4 is ");
-   WriteCard(ROTL(d, 4), 1);
+   WriteCard(rotl(d, 4), 1);
    WriteLn;
-   WriteCard(ROTR(ROTL(e, 1), 1), 1);
+   WriteCard(rotr(rotl(e, 1), 1), 1);
    WriteString(" rotated left by 5 is ");
-   WriteCard(ROTL(e, 5), 1);
+   WriteCard(rotl(e, 5), 1);
    WriteLn;
 
 
@@ -206,8 +216,8 @@ BEGIN
    WriteString(" XOR ");
    WriteCard(e, 1);
    WriteString(" shifted left 1 is ");
-   WriteCard(bwXor(d, SHL(e, 1)), 1);
+   WriteCard(bwXor(d, shl(e, 1)), 1);
    WriteLn;
 
 
-END BitwiseTests.
+END CardBitOpsTests.
