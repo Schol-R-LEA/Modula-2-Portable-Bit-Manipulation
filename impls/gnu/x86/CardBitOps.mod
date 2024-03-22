@@ -187,7 +187,7 @@ END rotr;
 
 PROCEDURE bit ( n : CARDINAL; bitIndex : BitIndex ) : BOOLEAN;
 BEGIN
-  IF bwAnd(n, bitIndex) # 0 THEN
+  IF bwAnd(n, shl (1, bitIndex)) # 0 THEN
     RETURN TRUE;
   ELSE
     RETURN FALSE;
