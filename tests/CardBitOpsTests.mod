@@ -20,6 +20,7 @@ FROM STextIO IMPORT WriteString, WriteLn;
 FROM SWholeIO IMPORT WriteCard;
 FROM CardBitOps IMPORT BitIndex, Bitwidth, BitMax,
                        bit, SetBit, ClearBit, ToggleBit,
+                       ClearLSBtoN, ClearMSBtoN,
                        shl, shr, ashr, shlc,
                        rotl, rotr,
                        bwNot, bwAnd, bwOr, bwXor;
@@ -66,6 +67,9 @@ BEGIN
    WriteCardBits(bwNot(n));
    WriteLn;
    WriteLn;
+   WriteClearLoHi(n);
+   WriteLn;
+   WriteLn;
    WriteShifts(n, 1);
    WriteLn;
    WriteLn;
@@ -79,6 +83,9 @@ BEGIN
    WriteLn;
    WriteLn;
    WriteShifts(n, 0);
+   WriteLn;
+   WriteLn;
+   WriteBitManipulation(n);
    WriteLn;
    WriteLn;
    FOR index := 0 TO 7 DO
@@ -101,11 +108,11 @@ BEGIN
    WriteLn;
    WriteCardBits(n);
    WriteString(" -> ");
-   WriteCardBits(shr(n, shift));
+   WriteCardBits(shl(n, shift));
    WriteLn;
    WriteCard(n, 1);
    WriteString(" shifted right by ");
-   WriteCard(shift,1 );
+   WriteCard(shift, 1);
    WriteString(" is ");
    WriteCard(shr(n, shift), 1);
    WriteLn;
@@ -149,7 +156,7 @@ BEGIN
    WriteCardBits(rotl(n, shift));
    WriteLn;
    WriteCard(n, 1);
-   WriteString(" rotated left by ");
+   WriteString(" rotated right by ");
    WriteCard(shift, 1);
    WriteString(" is ");
    WriteCard(rotr(n, shift), 1);
@@ -190,12 +197,67 @@ BEGIN
 END WriteBitwise;
 
 
+PROCEDURE WriteBitManipulation(n: CARDINAL);
+VAR
+   index, temp: CARDINAL;
+BEGIN
+   FOR index := 0 TO BitMax DO
+      WriteCard(n, 1);
+      WriteString(": setting bit ");
+      WriteCard(index, 1);
+      WriteString(" : ");
+      temp := n;
+      SetBit(temp, index);
+      WriteCard(temp, 1);
+      WriteLn;
+      WriteCard(n, 1);
+      WriteString(": clearing bit ");
+      WriteCard(index, 1);
+      WriteString(" : ");
+      temp := n;
+      ClearBit(temp, index);
+      WriteCard(temp, 1);
+      WriteLn;
+      WriteCard(n, 1);
+      WriteString(": complementing bit ");
+      WriteCard(index, 1);
+      WriteString(" : ");
+      temp := n;
+      ToggleBit(temp, index);
+      WriteCard(temp, 1);
+      WriteLn;
+   END;
+END WriteBitManipulation;
+
+
+PROCEDURE WriteClearLoHi(n: CARDINAL);
+VAR
+   index: BitIndex;
+   temp: CARDINAL;
 
 BEGIN
+   FOR index := 0 TO BitMax DO
+      WriteCard(n, 1);
+      WriteString(": cleared above ");
+      WriteCard(index, 2);
+      WriteString(": ");
+      temp := n;
+      ClearMSBtoN(temp, index);
+      WriteCardBits(temp);
+      WriteLn;
+      WriteCard(n, 1);
+      WriteString(": cleared below ");
+      WriteCard(index, 2);
+      WriteString(": ");
+      temp := n;
+      ClearLSBtoN(temp, index);
+      WriteCardBits(temp);
+      WriteLn;
+   END;
+END WriteClearLoHi;
 
+BEGIN
    FOR index := 0 TO 7 DO
       WriteTests(tests[index], tests);
    END;
-
-
 END CardBitOpsTests.

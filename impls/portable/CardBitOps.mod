@@ -328,7 +328,7 @@ PROCEDURE ClearLSBtoN ( VAR n : CARDINAL; bitIndex : BitIndex );
 
 BEGIN
   (* clearing to MSB produces all zeroes *)
-  IF bitIndex = BitMax-1 THEN
+  IF bitIndex = BitMax THEN
     n := 0;
     RETURN
   END; (* IF *)

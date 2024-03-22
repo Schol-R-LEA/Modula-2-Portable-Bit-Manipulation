@@ -209,10 +209,7 @@ END bit;
 PROCEDURE SetBit ( VAR n : CARDINAL; bitIndex : BitIndex );
 
 BEGIN
-  ASM VOLATILE ("mov %0, %%rax; mov %1, %%rcx; bts %%rcx, %%rax; mov %%rax, %0"
-                : "=rm" (n)
-                :  "rm" (bitIndex)
-                : "rax", "rcx");
+  n := bwOr(n, shl (1, bitIndex));
 END SetBit;
 
 
@@ -224,11 +221,9 @@ END SetBit;
 
 PROCEDURE ClearBit ( VAR n : CARDINAL; bitIndex : BitIndex );
 BEGIN
-  ASM VOLATILE ("mov %0, %%rax; mov %1, %%rcx; btr %%rcx, %%rax; mov %%rax, %0"
-                : "=rm" (n)
-                : "rm" (bitIndex)
-                : "rax", "rcx");
+  n := bwAnd(n, bwNot(shl (1, bitIndex)));
 END ClearBit;
+
 
 (* ---------------------------------------------------------------------------
  * procedure ToggleBit( n, bitIndex )
@@ -239,10 +234,7 @@ END ClearBit;
 PROCEDURE ToggleBit ( VAR n : CARDINAL; bitIndex : BitIndex );
 
 BEGIN
-  ASM VOLATILE ("mov %0, %%rax; mov %1, %%rcx; btc %%rcx, %%rax; mov %%rax, %0"
-                : "=rm" (n)
-                : "rm" (bitIndex)
-                : "rcx");
+  n := bwXor(n, shl (1, bitIndex));
 END ToggleBit;
 
 
@@ -253,10 +245,14 @@ END ToggleBit;
  * ------------------------------------------------------------------------ *)
 
 PROCEDURE ClearLSBtoN ( VAR n : CARDINAL; bitIndex : BitIndex );
-
 BEGIN
-  
+  (* clearing to MSB produces all zeroes *)
+  IF bitIndex = BitMax THEN
+    n := 0;
+    RETURN
+  END; (* IF *)
 
+  n := shl(shr(n, bitIndex+1), bitIndex+1);
 END ClearLSBtoN;
 
 
@@ -267,7 +263,18 @@ END ClearLSBtoN;
  * ------------------------------------------------------------------------ *)
 
 PROCEDURE ClearMSBtoN ( VAR n : CARDINAL; bitIndex : BitIndex );
+VAR
+  temp: CARDINAL;
+BEGIN
+  (* clearing from bit 0 produces all zeroes *)
+  IF bitIndex = 0 THEN
+    n := 0;
+    RETURN
+  END; (* IF *)
 
+  temp := n;
+  ClearLSBtoN(temp, bitIndex-1);
+  n := bwAnd(n, bwNot(temp));
 END ClearMSBtoN;
 
 
