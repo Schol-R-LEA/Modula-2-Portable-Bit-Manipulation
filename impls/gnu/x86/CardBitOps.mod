@@ -128,11 +128,16 @@ VAR
   highBits: BitIndex;
 
 BEGIN
-  highBits := BitMax - shiftFactor;
-  ASM VOLATILE ("mov %2, %%cl; mov %0, %1; sal %%cl, %0; mov %3, %%cl; shr %%cl, %1;"
-                : "=rm" (n), "=rm" (carryBits)
-                : "rm" (shiftFactor), "rm" (highBits)
-                : "cl");
+  IF n = 0 THEN
+    carryBits := 0;
+  ELSIF shiftFactor = 0 THEN
+    carryBits := 0;
+  ELSE
+    highBits := Bitwidth - shiftFactor;
+
+    carryBits := shr(n, highBits);
+    n := shl(n, shiftFactor);
+  END;
 END shlc;
 
 

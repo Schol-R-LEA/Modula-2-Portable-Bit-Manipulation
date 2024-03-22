@@ -204,24 +204,20 @@ BEGIN
   (* shifting by 0 *)
   IF shiftFactor = 0 THEN
     carryBits := 0
-    
-  (* shifting by 1 .. BitMax-1 *)
-  ELSIF shiftFactor < BitMax THEN
+
+  (* shifting by 1 .. BitMax *)
+  ELSE
     (* bit at position BitMax - shiftFactor is pivotal *)
-    pivotalBit := BitMax - shiftFactor;
-    
+    pivotalBit := Bitwidth - shiftFactor;
+
     (* compute bits that will be shifted out of n *)
     carryBits := n DIV powerOf2[pivotalBit];
 
     (* clear bits that will be shifted out to avoid overflow *)
     ClearMSBtoN(n, pivotalBit);
-    
+
     (* shift safely *)
     n := n * powerOf2[shiftFactor]
-    
-  (* shifting by BitMax *)
-  ELSE (* shiftFactor = BitMax *)
-    carryBits := n; n := 0
   END (* IF *)
 END shlc;
 
@@ -384,9 +380,11 @@ VAR
 
 BEGIN
   IF n = 0 THEN
-    RETURN n;
+    RETURN MAX(CARDINAL);
+  ELSIF n = MAX(CARDINAL) THEN
+  RETURN 0;
   ELSE
-    FOR i := 0 TO BitMax-1 DO
+    FOR i := 0 TO BitMax DO
       IF bit(n, i) THEN
         ClearBit(target, i);
       ELSE
@@ -412,7 +410,7 @@ BEGIN
   IF (n = 0) OR (m = 0) THEN
     RETURN 0;
   ELSE
-    FOR i := 0 TO BitMax-1 DO
+    FOR i := 0 TO BitMax DO
       IF bit(n, i) AND bit(m, i) THEN
         SetBit(target, i);
       ELSE
@@ -443,7 +441,7 @@ BEGIN
   ELSIF m = 0 THEN
     RETURN n;
   ELSE
-    FOR i := 0 TO BitMax-1 DO
+    FOR i := 0 TO BitMax DO
       IF bit(n, i) OR bit(m, i) THEN
         SetBit(target, i);
       ELSE
@@ -474,7 +472,7 @@ BEGIN
   ELSIF m = 0 THEN
     RETURN n;
   ELSE
-    FOR i := 0 TO BitMax-1 DO
+    FOR i := 0 TO BitMax DO
       IF (bit(n, i) OR bit(m, i)) AND NOT (bit(n, i) AND bit(m, i)) THEN
         SetBit(target, i);
       ELSE

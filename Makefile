@@ -26,7 +26,7 @@ tests_gnu_x86: gnu_x86 $(INC)/CardBitOps.def $(OBJ)/gnu/x86/CardBitOps.o
 portable: $(SRC)/portable/CardBitOps.mod $(INC)/CardBitOps.def
 	$(COMPILER) $(FLAGS) -I$(INC)/ \
 	-c $(SRC)/portable/CardBitOps.mod \
-	-o $(OBJ)/CardBitOps.o
+	-o $(OBJ)/portable/CardBitOps.o
 
 
 gnu_x86: $(SRC)/gnu/x86/CardBitOps.mod $(INC)/CardBitOps.def

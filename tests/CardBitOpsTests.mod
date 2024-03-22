@@ -19,283 +19,183 @@ MODULE CardBitOpsTests;
 FROM STextIO IMPORT WriteString, WriteLn;
 FROM SWholeIO IMPORT WriteCard;
 FROM CardBitOps IMPORT BitIndex, Bitwidth, BitMax,
-                       bit, SetBit, ClearBit,
-                       shl, shr, ashr,
+                       bit, SetBit, ClearBit, ToggleBit,
+                       shl, shr, ashr, shlc,
                        rotl, rotr,
                        bwNot, bwAnd, bwOr, bwXor;
 
+TYPE
+   TestList = ARRAY [0..7] OF CARDINAL;
+
+CONST
+   tests = TestList {0, 1, 6, 170, 85, 0DEADBEEFH, 080000000H, MAX(CARDINAL)};
+
 VAR
-   a, b, c, d, e, f, g, i: CARDINAL;
+   index: CARDINAL;
+
+
+PROCEDURE WriteCardBits(n: CARDINAL);
+VAR
+   i: BitIndex;
+BEGIN
+   FOR i := MAX(BitIndex) TO 0 BY -1 DO
+      IF bit(n, i) THEN
+         WriteString("1");
+      ELSE
+         WriteString("0");
+      END;
+      IF (i MOD 4 = 0) AND (i # 0) THEN
+         WriteString(" : ");
+      END;
+   END;
+END WriteCardBits;
+
+PROCEDURE WriteTests(n: CARDINAL; list: TestList);
+VAR
+   index: CARDINAL;
 
 BEGIN
-   a := 0;
-   b := 6;
-   c := MAX(CARDINAL);
-   d := 170;         (* 10101010 *)
-   e := 85;          (* 01010101 *)
-   f := 0DEADBEEFH;
-   g := 080000000H;   (* high bit set *)
-
-   WriteString("a = ");
-   WriteCard(a, 1);
-   WriteString(", NOT a = ");
-   WriteCard(bwNot(a), 1);
+   WriteCard(n, 1);
 
    WriteString(", ");
-   FOR i := MAX(BitIndex) TO 0 BY -1 DO
-      IF bit(a, i) THEN
-         WriteString("1");
-      ELSE
-         WriteString("0");
-      END;
-      IF (i MOD 4 = 0) AND (i # 0) THEN
-         WriteString(" : ");
-      END;
-   END;
-
+   WriteCardBits(n);
    WriteLn;
-
-   WriteString("b = ");
-   WriteCard(b, 1);
-   WriteString(", NOT b = ");
-   WriteCard(bwNot(b), 1);
+   WriteString("NOT ");
+   WriteCard(bwNot(n), 1);
    WriteString(", ");
-   FOR i := MAX(BitIndex) TO 0 BY -1 DO
-      IF bit(b, i) THEN
-         WriteString("1");
-      ELSE
-         WriteString("0");
-      END;
-      IF (i MOD 4 = 0) AND (i # 0) THEN
-         WriteString(" : ");
-      END;
+   WriteCardBits(bwNot(n));
+   WriteLn;
+   WriteLn;
+   WriteShifts(n, 1);
+   WriteLn;
+   WriteLn;
+   WriteShifts(n, 4);
+   WriteLn;
+   WriteLn;
+   WriteShifts(n, 17);
+   WriteLn;
+   WriteLn;
+   WriteShifts(n, MAX(BitIndex));
+   WriteLn;
+   WriteLn;
+   WriteShifts(n, 0);
+   WriteLn;
+   WriteLn;
+   FOR index := 0 TO 7 DO
+      WriteBitwise(n, list[index]);
    END;
    WriteLn;
-
-   WriteString("c = ");
-   WriteCard(c, 1);
-   WriteString(", NOT c = ");
-   WriteCard(bwNot(c), 1);
-   WriteString(", ");
-   FOR i := MAX(BitIndex) TO 0 BY -1 DO
-      IF bit(c, i) THEN
-         WriteString("1");
-      ELSE
-         WriteString("0");
-      END;
-      IF (i MOD 4 = 0) AND (i # 0) THEN
-         WriteString(" : ");
-      END;
-   END;
-   WriteLn;
-   WriteLn;
-
-   WriteCard(b, 1);
-   WriteString(" shifted left by 1 is ");
-   WriteCard(shl(b, 1), 1);
-   WriteLn;
-   WriteCard(b, 1);
-   WriteString(" shifted right by 1 is ");
-   WriteCard(shr(b, 1), 1);
-   WriteLn;
-   WriteLn;
-
-   WriteCard(c, 1);
-   WriteString(" shifted left by 2 is ");
-   WriteCard(shl(c, 2), 1);
-   WriteLn;
-   WriteCard(c, 1);
-   WriteString(" shifted right by 2 is ");
-   WriteCard(shr(c, 2), 1);
-   WriteLn;
-
-   WriteCard(d, 1);
-   WriteString(" shifted left by 1 is ");
-   WriteCard(shl(d, 1), 1);
-   WriteLn;
-   WriteCard(d, 1);
-   WriteString(" shifted right by 1 is ");
-   WriteCard(shr(d, 1), 1);
-   WriteLn;
-   WriteLn;
-
-   WriteCard(e, 1);
-   WriteString(" shifted left by 1 is ");
-   WriteCard(shl(e, 1), 1);
-   WriteLn;
-   WriteCard(e, 1);
-   WriteString(" shifted right by 1 is ");
-   WriteCard(shr(e, 1), 1);
-   WriteLn;
-   WriteLn;
-
-   WriteCard(f, 1);
-   WriteString(" shifted left by 4 is ");
-   WriteCard(shl(f, 4), 1);
-   WriteLn;
-   WriteCard(f, 1);
-   WriteString(" shifted right by 4 is ");
-   WriteCard(shr(f, 4), 1);
-   WriteLn;
-   WriteLn;
-
-   WriteCard(g, 1);
-   WriteString(" shifted left by 4 is ");
-   WriteCard(shl(g, 4), 1);
-   WriteLn;
-   WriteCard(g, 1);
-   WriteString(" shifted right by 4 is ");
-   WriteCard(shr(g, 4), 1);
-   WriteLn;
-   WriteLn;
+END WriteTests;
 
 
-   WriteCard(f, 2);
-   WriteString(" shifted left by 2 is ");
-   WriteCard(shl(f, 2), 1);
-   WriteLn;
+PROCEDURE WriteShifts(n: CARDINAL; shift: BitIndex);
+VAR
+   carry, withCarry: CARDINAL;
 
-   WriteCard(f, 2);
-   WriteString(" shifted right by 2 is ");
-   WriteCard(shr(f, 2), 1);
+BEGIN
+   WriteCard(n, 1);
+   WriteString(" shifted left by ");
+   WriteCard(shift, 1);
+   WriteString(" is ");
+   WriteCard(shl(n, shift), 1);
    WriteLn;
+   WriteCardBits(n);
+   WriteString(" -> ");
+   WriteCardBits(shr(n, shift));
    WriteLn;
-
-   WriteCard(d, 1);
-   WriteString(" shifted left by 4 is ");
-   WriteCard(shl(d, 4), 1);
+   WriteCard(n, 1);
+   WriteString(" shifted right by ");
+   WriteCard(shift,1 );
+   WriteString(" is ");
+   WriteCard(shr(n, shift), 1);
    WriteLn;
-   WriteCard(e, 1);
-   WriteString(" shifted left by 5 is ");
-   WriteCard(shl(e, 5), 1);
+   WriteCardBits(n);
+   WriteString(" -> ");
+   WriteCardBits(shr(n, shift));
    WriteLn;
+   WriteCard(n, 1);
+   WriteString(" shifted left with carry by ");
+   WriteCard(shift, 1);
+   WriteString(" is ");
+   withCarry := n;
+   shlc(withCarry, carry, shift);
+   WriteCard(withCarry, 1);
    WriteLn;
-
-   WriteCard(c, 1);
-   WriteString(" arithmetically shifted right by 4 is ");
-   WriteCard(ashr(c, 4), 1);
+   WriteCardBits(n);
+   WriteString(" -> ");
+   WriteCardBits(withCarry);
    WriteLn;
-
-   WriteCard(d, 1);
-   WriteString(" arithmetically shifted right by 4 is ");
-   WriteCard(ashr(d, 4), 1);
+   WriteString("Carry: ");
+   WriteCardBits(carry);
    WriteLn;
-
-   WriteCard(f, 1);
-   WriteString(" arithmetically shifted right by 4 is ");
-   WriteCard(ashr(f, 4), 1);
+   WriteCard(n, 1);
+   WriteString(" arithmetically shifted right by ");
+   WriteCard(shift, 1);
+   WriteString(" is ");
+   WriteCard(ashr(n, shift), 1);
    WriteLn;
-
-   WriteCard(g, 1);
-   WriteString(" arithmetically shifted right by 4 is ");
-   WriteCard(ashr(g, 4), 1);
+   WriteCardBits(n);
+   WriteString(" -> ");
+   WriteCardBits(ashr(n, shift));
    WriteLn;
+   WriteCard(n, 1);
+   WriteString(" rotated left by ");
+   WriteCard(shift, 1);
+   WriteString(" is ");
+   WriteCard(rotl(n, shift), 1);
    WriteLn;
-
-   WriteCard(rotr(rotl(b, 1), 1), 1);
-   WriteString(" rotated left by 1 is ");
-   WriteCard(rotl(b, 1), 1);
+   WriteCardBits(n);
+   WriteString(" -> ");
+   WriteCardBits(rotl(n, shift));
    WriteLn;
-   WriteCard(rotr(rotl(b, 1), 1), 1);
-   WriteString(" rotated right by 1 is ");
-   WriteCard(rotr(b, 1), 1);
+   WriteCard(n, 1);
+   WriteString(" rotated left by ");
+   WriteCard(shift, 1);
+   WriteString(" is ");
+   WriteCard(rotr(n, shift), 1);
    WriteLn;
-   WriteLn;
-
-   WriteCard(c, 1);
-   WriteString(" rotated left by 2 is ");
-   WriteCard(rotl(c, 2), 1);
-   WriteLn;
-   WriteCard(c, 1);
-   WriteString(" rotated right by 2 is ");
-   WriteCard(rotr(c, 2), 1);
-   WriteLn;
-   WriteLn;
-
-   WriteCard(rotr(rotl(d, 1), 1), 1);
-   WriteString(" rotated left by 1 is ");
-   WriteCard(rotl(d, 1), 1);
-   WriteLn;
-   WriteCard(rotr(rotl(d, 1), 1), 1);
-   WriteString(" rotated right by 1 is ");
-   WriteCard(rotr(d, 1), 1);
-   WriteLn;
-   WriteLn;
-
-   WriteCard(e, 1);
-   WriteString(" rotated left by 1 is ");
-   WriteCard(rotl(e, 1), 1);
-   WriteLn;
-   WriteCard(e, 1);
-   WriteString(" rotated right by 1 is ");
-   WriteCard(rotr(e, 1), 1);
-   WriteLn;
-   WriteLn;
-
-   WriteCard(f, 1);
-   WriteString(" rotated left by 1 is ");
-   WriteCard(rotl(f, 1), 1);
-   WriteLn;
-   WriteCard(f, 1);
-   WriteString(" rotated right by 1 is ");
-   WriteCard(rotr(f, 1), 1);
-   WriteLn;
-   WriteLn;
+   WriteCardBits(n);
+   WriteString(" -> ");
+   WriteCardBits(rotr(n, shift));
+END WriteShifts;
 
 
-   WriteCard(g, 1);
-   WriteString(" rotated right by 1 is ");
-   WriteCard(rotr(g, 1), 1);
-   WriteLn;
-   WriteCard(g, 1);
-   WriteString(" rotated left by 1 is ");
-   WriteCard(rotl(g, 1), 1);
-   WriteLn;
-   WriteLn;
-
-   WriteCard(d, 1);
-   WriteString(" rotated left by 4 is ");
-   WriteCard(rotl(d, 4), 1);
-   WriteLn;
-   WriteCard(e, 1);
-   WriteString(" rotated left by 5 is ");
-   WriteCard(rotl(e, 5), 1);
-   WriteLn;
-   WriteCard(f, 1);
-   WriteString(" rotated left by 4 is ");
-   WriteCard(rotl(f, 4), 1);
-   WriteLn;
-   WriteCard(g, 1);
-   WriteString(" rotated left by 5 is ");
-   WriteCard(rotl(g, 5), 1);
-   WriteLn;
-   WriteLn;
-
-   WriteCard(d, 1);
+PROCEDURE WriteBitwise(n, m: CARDINAL);
+BEGIN
+   WriteCard(n, 1);
    WriteString(" AND ");
-   WriteCard(e, 1);
+   WriteCard(m, 1);
    WriteString(" is ");
-   WriteCard(bwAnd(d, e), 1);
+   WriteCard(bwAnd(n, m), 1);
    WriteLn;
-   WriteCard(d, 1);
+   WriteCard(n, 1);
    WriteString(" OR ");
-   WriteCard(e, 1);
+   WriteCard(m, 1);
    WriteString(" is ");
-   WriteCard(bwOr(d, e), 1);
+   WriteCard(bwOr(n, m), 1);
    WriteLn;
-   WriteCard(d, 1);
+   WriteCard(n, 1);
    WriteString(" XOR ");
-   WriteCard(e, 1);
+   WriteCard(m, 1);
    WriteString(" is ");
-   WriteCard(bwXor(d, e), 1);
+   WriteCard(bwXor(n, m), 1);
    WriteLn;
 
-   WriteCard(d, 1);
+   WriteCard(n, 1);
    WriteString(" XOR ");
-   WriteCard(e, 1);
+   WriteCard(m, 1);
    WriteString(" shifted left 1 is ");
-   WriteCard(bwXor(d, shl(e, 1)), 1);
+   WriteCard(bwXor(n, shl(m, 1)), 1);
    WriteLn;
+END WriteBitwise;
+
+
+
+BEGIN
+
+   FOR index := 0 TO 7 DO
+      WriteTests(tests[index], tests);
+   END;
 
 
 END CardBitOpsTests.
