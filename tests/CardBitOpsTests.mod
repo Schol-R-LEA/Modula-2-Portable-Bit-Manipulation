@@ -88,6 +88,7 @@ BEGIN
       WriteString("clear");
    END;
    WriteLn;
+   WriteLn;
 
    WriteCard(b, 1);
    WriteString(" shifted left by 1 is ");
@@ -97,20 +98,57 @@ BEGIN
    WriteString(" shifted right by 1 is ");
    WriteCard(shr(b, 1), 1);
    WriteLn;
+   WriteLn;
+
+   WriteCard(c, 1);
+   WriteString(" shifted left by 2 is ");
+   WriteCard(shl(c, 2), 1);
+   WriteLn;
    WriteCard(c, 1);
    WriteString(" shifted right by 2 is ");
    WriteCard(shr(c, 2), 1);
    WriteLn;
 
    WriteCard(d, 1);
+   WriteString(" shifted left by 1 is ");
+   WriteCard(shl(d, 1), 1);
+   WriteLn;
+   WriteCard(d, 1);
    WriteString(" shifted right by 1 is ");
    WriteCard(shr(d, 1), 1);
+   WriteLn;
    WriteLn;
 
    WriteCard(e, 1);
    WriteString(" shifted left by 1 is ");
    WriteCard(shl(e, 1), 1);
    WriteLn;
+   WriteCard(e, 1);
+   WriteString(" shifted right by 1 is ");
+   WriteCard(shr(e, 1), 1);
+   WriteLn;
+   WriteLn;
+
+   WriteCard(f, 1);
+   WriteString(" shifted left by 4 is ");
+   WriteCard(shl(f, 4), 1);
+   WriteLn;
+   WriteCard(f, 1);
+   WriteString(" shifted right by 4 is ");
+   WriteCard(shr(f, 4), 1);
+   WriteLn;
+   WriteLn;
+
+   WriteCard(g, 1);
+   WriteString(" shifted left by 4 is ");
+   WriteCard(shl(g, 4), 1);
+   WriteLn;
+   WriteCard(g, 1);
+   WriteString(" shifted right by 4 is ");
+   WriteCard(shr(g, 4), 1);
+   WriteLn;
+   WriteLn;
+
 
    WriteCard(f, 2);
    WriteString(" shifted left by 2 is ");
@@ -121,6 +159,7 @@ BEGIN
    WriteString(" shifted right by 2 is ");
    WriteCard(shr(f, 2), 1);
    WriteLn;
+   WriteLn;
 
    WriteCard(d, 1);
    WriteString(" shifted left by 4 is ");
@@ -129,6 +168,7 @@ BEGIN
    WriteCard(e, 1);
    WriteString(" shifted left by 5 is ");
    WriteCard(shl(e, 5), 1);
+   WriteLn;
    WriteLn;
 
    WriteCard(c, 1);
@@ -150,6 +190,7 @@ BEGIN
    WriteString(" arithmetically shifted right by 4 is ");
    WriteCard(ashr(g, 4), 1);
    WriteLn;
+   WriteLn;
 
    WriteCard(rotr(rotl(b, 1), 1), 1);
    WriteString(" rotated left by 1 is ");
@@ -159,10 +200,16 @@ BEGIN
    WriteString(" rotated right by 1 is ");
    WriteCard(rotr(b, 1), 1);
    WriteLn;
+   WriteLn;
 
-   WriteCard(rotr(rotl(c, 1), 1), 1);
+   WriteCard(c, 1);
+   WriteString(" rotated left by 2 is ");
+   WriteCard(rotl(c, 2), 1);
+   WriteLn;
+   WriteCard(c, 1);
    WriteString(" rotated right by 2 is ");
    WriteCard(rotr(c, 2), 1);
+   WriteLn;
    WriteLn;
 
    WriteCard(rotr(rotl(d, 1), 1), 1);
@@ -173,25 +220,56 @@ BEGIN
    WriteString(" rotated right by 1 is ");
    WriteCard(rotr(d, 1), 1);
    WriteLn;
+   WriteLn;
 
-   WriteCard(rotr(rotl(e, 1), 1), 1);
+   WriteCard(e, 1);
    WriteString(" rotated left by 1 is ");
    WriteCard(rotl(e, 1), 1);
    WriteLn;
-   WriteCard(rotr(rotl(e, 1), 1), 1);
+   WriteCard(e, 1);
    WriteString(" rotated right by 1 is ");
    WriteCard(rotr(e, 1), 1);
    WriteLn;
+   WriteLn;
 
-   WriteCard(rotr(rotl(d, 1), 1), 1);
+   WriteCard(f, 1);
+   WriteString(" rotated left by 1 is ");
+   WriteCard(rotl(f, 1), 1);
+   WriteLn;
+   WriteCard(f, 1);
+   WriteString(" rotated right by 1 is ");
+   WriteCard(rotr(f, 1), 1);
+   WriteLn;
+   WriteLn;
+
+
+   WriteCard(g, 1);
+   WriteString(" rotated right by 1 is ");
+   WriteCard(rotr(g, 1), 1);
+   WriteLn;
+   WriteCard(g, 1);
+   WriteString(" rotated left by 1 is ");
+   WriteCard(rotl(g, 1), 1);
+   WriteLn;
+   WriteLn;
+
+   WriteCard(d, 1);
    WriteString(" rotated left by 4 is ");
    WriteCard(rotl(d, 4), 1);
    WriteLn;
-   WriteCard(rotr(rotl(e, 1), 1), 1);
+   WriteCard(e, 1);
    WriteString(" rotated left by 5 is ");
    WriteCard(rotl(e, 5), 1);
    WriteLn;
-
+   WriteCard(f, 1);
+   WriteString(" rotated left by 4 is ");
+   WriteCard(rotl(f, 4), 1);
+   WriteLn;
+   WriteCard(g, 1);
+   WriteString(" rotated left by 5 is ");
+   WriteCard(rotl(g, 5), 1);
+   WriteLn;
+   WriteLn;
 
    WriteCard(d, 1);
    WriteString(" AND ");

@@ -18,7 +18,6 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. *)
 IMPLEMENTATION MODULE CardBitOps; (* portable *)
 (* Bit Operations on Type CARDINAL *)
 
-
 (* ---------------------------------------------------------------------------
  * function shl( n, shiftFactor )
  * ---------------------------------------------------------------------------
@@ -58,13 +57,13 @@ BEGIN
 
     (* compute bits that will be shifted out of n *)
     carryBits := n DIV powerOf2[pivotalBit];
-    
+
     (* clear bits that will be shifted out to avoid overflow *)
-    ClearMSBtoN(n, pivotalBit);
-    
+    ClearMSBtoN(n, pivotalBit+1);
+
     (* shift safely *)
     n := n * powerOf2[shiftFactor]
-    
+
   (* shifting by BitMax *)
   ELSE (* shiftFactor = BitMax *)
     n := 0
@@ -106,7 +105,7 @@ BEGIN
 
   (* shifting by 1 .. Bitwidth-1 *)
   ELSIF shiftFactor < Bitwidth THEN
-    (* bit at position BitMax - shiftFactor is pivotal *)
+    (* bit at position shiftFactor is pivotal *)
     pivotalBit := shiftFactor;
 
     (* shift *)
@@ -239,9 +238,7 @@ VAR
   upper, lower: CARDINAL;
 
 BEGIN
-  upper := n;
-  ClearLSBtoN(upper, shiftFactor-1);
-  upper := shl(upper, shiftFactor);
+  upper := shl(n, shiftFactor);
   lower := shr(n, Bitwidth - shiftFactor);
   RETURN upper + lower;
 END rotl;
@@ -259,10 +256,8 @@ VAR
   upper, lower: CARDINAL;
 
 BEGIN
-  lower := n;
-  ClearMSBtoN(lower, Bitwidth - shiftFactor);
   upper := shr(n, shiftFactor);
-  lower := shr(lower, Bitwidth - shiftFactor);
+  lower := shl(n, Bitwidth - shiftFactor);
   RETURN upper + lower;
 END rotr;
 
@@ -499,7 +494,6 @@ END bwXor;
 
 VAR
   powerOf2 : ARRAY [0..MAX(BitIndex)] OF CARDINAL;
-  
 
 (* ---------------------------------------------------------------------------
  * private procedure InitPow2Table
@@ -514,10 +508,10 @@ VAR
 
 BEGIN
   powerOf2[0] := 1;
-  FOR index := 1 TO BitMax DO
-    powerOf2[index] := powerOf2[index-1] * 2
+
+  FOR index := 1 TO MAX(BitIndex) DO
+    powerOf2[index] := powerOf2[index-1] * 2;
   END; (* FOR *)
-  (* powerOf2[Bitwidth-1] := MAX(CARDINAL) *)
 END InitPow2Table;
 
 
