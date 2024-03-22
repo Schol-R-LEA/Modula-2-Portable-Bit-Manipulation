@@ -114,7 +114,7 @@ PROCEDURE ClearBit ( VAR n : CARDINAL; bitIndex : BitIndex );
  * Sets the bit at bitIndex of n if it is clear, otherwise clears it.
  * ------------------------------------------------------------------------ *)
 
-(* PROCEDURE ToggleBit ( VAR n : CARDINAL; bitIndex : BitIndex ); *)
+PROCEDURE ToggleBit ( VAR n : CARDINAL; bitIndex : BitIndex );
 
 
 (* ---------------------------------------------------------------------------

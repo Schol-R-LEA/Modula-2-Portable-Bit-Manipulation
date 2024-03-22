@@ -15,7 +15,7 @@ with this package; see the file COPYING.  If not, write to the Free Software
 Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. *)
 
 
-IMPLEMENTATION MODULE CardBitOps; (* portable *)
+IMPLEMENTATION MODULE CardBitOps; 
 (* Bit Operations on Type CARDINAL *)
 
 (* ---------------------------------------------------------------------------
@@ -37,39 +37,17 @@ IMPLEMENTATION MODULE CardBitOps; (* portable *)
  * ------------------------------------------------------------------------ *)
 
 PROCEDURE shl ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
-
 VAR
-  carryBits : CARDINAL;
-  pivotalBit : BitIndex;
+  target: CARDINAL;
 
 BEGIN
-  IF n = 0 THEN
-    (* NOP *)
+  target := n;
+  ASM VOLATILE ("mov %1, %%cl; shl %%cl, %0"
+                : "=rm" (target)
+                : "rm" (shiftFactor)
+                : "cl");
 
-  ELSIF shiftFactor = 0 THEN
-    (* NOP *)
-
-  (* shifting by 1 .. Bitwidth-1 *)
-  ELSIF shiftFactor < Bitwidth THEN
-
-    (* bit at position BitMax - shiftFactor is pivotal *)
-    pivotalBit := BitMax - shiftFactor;
-
-    (* compute bits that will be shifted out of n *)
-    carryBits := n DIV powerOf2[pivotalBit];
-
-    (* clear bits that will be shifted out to avoid overflow *)
-    ClearMSBtoN(n, pivotalBit+1);
-
-    (* shift safely *)
-    n := n * powerOf2[shiftFactor]
-
-  (* shifting by BitMax *)
-  ELSE (* shiftFactor = BitMax *)
-    n := 0
-  END; (* IF *)
-  
-  RETURN n
+  RETURN target
 END shl;
 
 
@@ -92,31 +70,17 @@ END shl;
  * ------------------------------------------------------------------------ *)
 
 PROCEDURE shr ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
-
 VAR
-  pivotalBit : BitIndex;
+  target: CARDINAL;
 
 BEGIN
-  IF n = 0 THEN
-    (* NOP *)
+  target := n;
+  ASM VOLATILE ("mov %1, %%cl; shr %%cl, %0"
+                : "=rm" (target)
+                : "rm" (shiftFactor)
+                : "cl");
 
-  ELSIF shiftFactor = 0 THEN
-    (* NOP *)
-
-  (* shifting by 1 .. Bitwidth-1 *)
-  ELSIF shiftFactor < Bitwidth THEN
-    (* bit at position shiftFactor is pivotal *)
-    pivotalBit := shiftFactor;
-
-    (* shift *)
-    n := n DIV powerOf2[pivotalBit]
-
-  (* shifting by BitMax *)
-  ELSE (* shiftFactor = BitMax *)
-    n := 0
-  END; (* IF *)
-
-  RETURN n
+  RETURN target
 END shr;
 
 
@@ -139,53 +103,17 @@ END shr;
  * ------------------------------------------------------------------------ *)
 
 PROCEDURE ashr ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
-
 VAR
-  pivotalBit : BitIndex;
-  mask : CARDINAL;
+  target: CARDINAL;
 
 BEGIN
-  IF n = 0 THEN
-    (* NOP *)
+  target := n;
+  ASM VOLATILE ("mov %1, %%cl; sar %%cl, %0"
+                : "=rm" (target)
+                : "rm" (shiftFactor)
+                : "cl");
 
-  ELSIF shiftFactor = 0 THEN
-    (* NOP *)
-
-  ELSIF n = MAX(CARDINAL) THEN
-    (* NOP *)
-
-  (* shifting by 1 .. BitMax-1 *)
-  ELSIF shiftFactor < BitMax THEN
-    (* bit at position shiftFactor is pivotal *)
-    pivotalBit := Bitwidth - shiftFactor;
-
-    IF NOT bit(n, BitMax) THEN
-      (* shift *)
-      n := n DIV powerOf2[shiftFactor]
-
-    ELSE (* high bit set *)
-
-      (* shift *)
-      n := n DIV powerOf2[shiftFactor];
-
-      (* compute mask to set high bits *)
-      mask := MAX(CARDINAL) DIV powerOf2[pivotalBit];
-      mask := mask * powerOf2[pivotalBit];
-
-      (* add mask to n, thereby setting high bits *)
-      n := n + mask
-    END (* IF *)
-
-  (* shifting by BitMax *)
-  ELSE (* shiftFactor = BitMax *)
-    IF bit(n, BitMax) THEN
-      n := MAX(CARDINAL)
-    ELSE
-      n := 0
-    END;
-  END; (* IF *)
-  
-  RETURN n
+  RETURN target
 END ashr;
 
 
@@ -196,33 +124,15 @@ END ashr;
  * ------------------------------------------------------------------------ *)
 
 PROCEDURE shlc ( VAR n, carryBits : CARDINAL; shiftFactor : BitIndex );
-
 VAR
-  pivotalBit : BitIndex;
+  highBits: BitIndex;
 
 BEGIN
-  (* shifting by 0 *)
-  IF shiftFactor = 0 THEN
-    carryBits := 0
-    
-  (* shifting by 1 .. BitMax-1 *)
-  ELSIF shiftFactor < BitMax THEN
-    (* bit at position BitMax - shiftFactor is pivotal *)
-    pivotalBit := BitMax - shiftFactor;
-    
-    (* compute bits that will be shifted out of n *)
-    carryBits := n DIV powerOf2[pivotalBit];
-
-    (* clear bits that will be shifted out to avoid overflow *)
-    ClearMSBtoN(n, pivotalBit);
-    
-    (* shift safely *)
-    n := n * powerOf2[shiftFactor]
-    
-  (* shifting by BitMax *)
-  ELSE (* shiftFactor = BitMax *)
-    carryBits := n; n := 0
-  END (* IF *)
+  highBits := BitMax - shiftFactor;
+  ASM VOLATILE ("mov %2, %%cl; mov %0, %1; sal %%cl, %0; mov %3, %%cl; shr %%cl, %1;"
+                : "=rm" (n), "=rm" (carryBits)
+                : "rm" (shiftFactor), "rm" (highBits)
+                : "cl");
 END shlc;
 
 
@@ -233,14 +143,17 @@ END shlc;
  * ------------------------------------------------------------------------ *)
 
 PROCEDURE rotl ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
-
 VAR
-  upper, lower: CARDINAL;
+  target: CARDINAL;
 
 BEGIN
-  upper := shl(n, shiftFactor);
-  lower := shr(n, Bitwidth - shiftFactor);
-  RETURN upper + lower;
+  target := n;
+  ASM VOLATILE ("mov %1, %%cl; rol %%cl, %0"
+                : "=rm" (target)
+                : "rm" (shiftFactor)
+                : "cl");
+
+  RETURN target
 END rotl;
 
 
@@ -251,14 +164,17 @@ END rotl;
  * ------------------------------------------------------------------------ *)
 
 PROCEDURE rotr ( n : CARDINAL; shiftFactor : BitIndex ) : CARDINAL;
-
 VAR
-  upper, lower: CARDINAL;
+  target: CARDINAL;
 
 BEGIN
-  upper := shr(n, shiftFactor);
-  lower := shl(n, Bitwidth - shiftFactor);
-  RETURN upper + lower;
+  target := n;
+  ASM VOLATILE ("mov %1, %%cl; ror %%cl, %0"
+                : "=rm" (target)
+                : "rm" (shiftFactor)
+                : "cl");
+
+  RETURN target
 END rotr;
 
 
@@ -270,9 +186,12 @@ END rotr;
  * ------------------------------------------------------------------------ *)
 
 PROCEDURE bit ( n : CARDINAL; bitIndex : BitIndex ) : BOOLEAN;
-
 BEGIN
-  RETURN ODD(n DIV powerOf2[bitIndex])
+  IF bwAnd(n, bitIndex) # 0 THEN
+    RETURN TRUE;
+  ELSE
+    RETURN FALSE;
+  END;
 END bit;
 
 
@@ -285,9 +204,10 @@ END bit;
 PROCEDURE SetBit ( VAR n : CARDINAL; bitIndex : BitIndex );
 
 BEGIN
-  IF NOT bit(n, bitIndex) THEN
-    n := n + powerOf2[bitIndex]
-  END (* IF *)
+  ASM VOLATILE ("mov %0, %%rax; mov %1, %%rcx; bts %%rcx, %%rax; mov %%rax, %0"
+                : "=rm" (n)
+                :  "rm" (bitIndex)
+                : "rax", "rcx");
 END SetBit;
 
 
@@ -298,11 +218,11 @@ END SetBit;
  * ------------------------------------------------------------------------ *)
 
 PROCEDURE ClearBit ( VAR n : CARDINAL; bitIndex : BitIndex );
-
 BEGIN
-  IF bit(n, bitIndex) THEN
-    n := n - powerOf2[bitIndex]
-  END (* IF *)
+  ASM VOLATILE ("mov %0, %%rax; mov %1, %%rcx; btr %%rcx, %%rax; mov %%rax, %0"
+                : "=rm" (n)
+                : "rm" (bitIndex)
+                : "rax", "rcx");
 END ClearBit;
 
 (* ---------------------------------------------------------------------------
@@ -314,11 +234,10 @@ END ClearBit;
 PROCEDURE ToggleBit ( VAR n : CARDINAL; bitIndex : BitIndex );
 
 BEGIN
-  IF bit(n, bitIndex) THEN
-    n := n - powerOf2[bitIndex]
-  ELSE
-    n := n + powerOf2[bitIndex]
-  END
+  ASM VOLATILE ("mov %0, %%rax; mov %1, %%rcx; btc %%rcx, %%rax; mov %%rax, %0"
+                : "=rm" (n)
+                : "rm" (bitIndex)
+                : "rcx");
 END ToggleBit;
 
 
@@ -331,15 +250,8 @@ END ToggleBit;
 PROCEDURE ClearLSBtoN ( VAR n : CARDINAL; bitIndex : BitIndex );
 
 BEGIN
-  (* clearing to MSB produces all zeroes *)
-  IF bitIndex = BitMax-1 THEN
-    n := 0;
-    RETURN
-  END; (* IF *)
+  
 
-  (* shift right and back to clear the low bits *)
-  n := n DIV powerOf2[bitIndex+1];
-  n := n * powerOf2[bitIndex+1]
 END ClearLSBtoN;
 
 
@@ -351,24 +263,6 @@ END ClearLSBtoN;
 
 PROCEDURE ClearMSBtoN ( VAR n : CARDINAL; bitIndex : BitIndex );
 
-VAR
-  mask : CARDINAL;
-
-BEGIN
-  (* clearing from bit 0 produces all zeroes *)
-  IF bitIndex = 0 THEN
-    n := 0;
-    RETURN
-  END; (* IF *)
-
-  (* shift lower bits out to the right *)
-  mask := n DIV powerOf2[bitIndex];
-
-  (* shift them back, thereby clearing the low bits, obtaining a mask *)
-  mask := mask * powerOf2[bitIndex];
-
-  (* subtract the mask, thereby clearing the high bits *)
-  n := n - mask
 END ClearMSBtoN;
 
 
@@ -380,21 +274,13 @@ END ClearMSBtoN;
 
 PROCEDURE bwNot (n: CARDINAL): CARDINAL;
 VAR
-  i, target: CARDINAL;
+  target: CARDINAL;
 
 BEGIN
-  IF n = 0 THEN
-    RETURN n;
-  ELSE
-    FOR i := 0 TO BitMax-1 DO
-      IF bit(n, i) THEN
-        ClearBit(target, i);
-      ELSE
-        SetBit(target, i);
-      END;
-    END;
-    RETURN target;
-  END;
+  target := n;
+  ASM VOLATILE ("not %0"
+                : "=rm" (target));
+  RETURN target;
 END bwNot;
 
 
@@ -406,21 +292,15 @@ END bwNot;
 
 PROCEDURE bwAnd (n : CARDINAL; m : CARDINAL): CARDINAL;
 VAR
-  i, target: CARDINAL;
+  target: CARDINAL;
 
 BEGIN
-  IF (n = 0) OR (m = 0) THEN
-    RETURN 0;
-  ELSE
-    FOR i := 0 TO BitMax-1 DO
-      IF bit(n, i) AND bit(m, i) THEN
-        SetBit(target, i);
-      ELSE
-        ClearBit(target, i);
-      END;
-    END;
-    RETURN target;
-  END;
+  target := n;
+  ASM VOLATILE ("and %1, %0"
+                : "=rm" (target)
+                : "rm" (m)
+                : );
+  RETURN target;
 END bwAnd;
 
 
@@ -433,25 +313,15 @@ END bwAnd;
 
 PROCEDURE bwOr (n : CARDINAL; m : CARDINAL): CARDINAL;
 VAR
-  i, target: CARDINAL;
+  target: CARDINAL;
 
 BEGIN
-  IF (n = 0) AND (m = 0) THEN
-    RETURN 0;
-  ELSIF n = 0 THEN
-    RETURN m;
-  ELSIF m = 0 THEN
-    RETURN n;
-  ELSE
-    FOR i := 0 TO BitMax-1 DO
-      IF bit(n, i) OR bit(m, i) THEN
-        SetBit(target, i);
-      ELSE
-        ClearBit(target, i);
-      END;
-    END;
-    RETURN target;
-  END;
+  target := n;
+  ASM VOLATILE ("or %1, %0"
+                : "=rm" (target)
+                : "rm" (m)
+                : );
+  RETURN target;
 END bwOr;
 
 
@@ -464,61 +334,15 @@ END bwOr;
 
 PROCEDURE bwXor (n : CARDINAL; m : CARDINAL): CARDINAL;
 VAR
-  i, target: CARDINAL;
+  target: CARDINAL;
 
 BEGIN
-  IF ((n = 0) AND (m = 0)) OR (n = m) THEN
-    RETURN 0;
-  ELSIF n = 0 THEN
-    RETURN m;
-  ELSIF m = 0 THEN
-    RETURN n;
-  ELSE
-    FOR i := 0 TO BitMax-1 DO
-      IF (bit(n, i) OR bit(m, i)) AND NOT (bit(n, i) AND bit(m, i)) THEN
-        SetBit(target, i);
-      ELSE
-        ClearBit(target, i);
-      END;
-    END;
-    RETURN target;
-  END;
+  target := n;
+  ASM VOLATILE ("xor %1, %0"
+                : "=rm" (target)
+                : "rm" (m));
+  RETURN target;
 END bwXor;
 
 
-
-
-(* ---------------------------------------------------------------------------
- * Powers of 2 table
- * ------------------------------------------------------------------------ *)
-
-VAR
-  powerOf2 : ARRAY [0..MAX(BitIndex)] OF CARDINAL;
-
-(* ---------------------------------------------------------------------------
- * private procedure InitPow2Table
- * ---------------------------------------------------------------------------
- * Initialises the powers of 2 table
- * ------------------------------------------------------------------------ *)
-
-PROCEDURE InitPow2Table;
-
-VAR
-  index : BitIndex;
-
-BEGIN
-  powerOf2[0] := 1;
-
-  FOR index := 1 TO MAX(BitIndex) DO
-    powerOf2[index] := powerOf2[index-1] * 2;
-  END; (* FOR *)
-END InitPow2Table;
-
-
-(* ---------------------------------------------------------------------------
- * Module Initialisation
- * ------------------------------------------------------------------------ *)
-
-BEGIN (* CardBitOps *)
-  InitPow2Table
 END CardBitOps.

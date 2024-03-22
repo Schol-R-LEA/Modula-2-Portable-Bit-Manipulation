@@ -18,13 +18,14 @@ MODULE CardBitOpsTests;
 
 FROM STextIO IMPORT WriteString, WriteLn;
 FROM SWholeIO IMPORT WriteCard;
-FROM CardBitOps IMPORT bit, SetBit, ClearBit,
+FROM CardBitOps IMPORT BitIndex, Bitwidth, BitMax,
+                       bit, SetBit, ClearBit,
                        shl, shr, ashr,
                        rotl, rotr,
                        bwNot, bwAnd, bwOr, bwXor;
 
 VAR
-   a, b, c, d, e, f, g: CARDINAL;
+   a, b, c, d, e, f, g, i: CARDINAL;
 
 BEGIN
    a := 0;
@@ -39,35 +40,35 @@ BEGIN
    WriteCard(a, 1);
    WriteString(", NOT a = ");
    WriteCard(bwNot(a), 1);
-   WriteString(", bit 3 is ");
-   IF bit(a, 3) THEN
-      WriteString("set");
-   ELSE
-      WriteString("clear");
+
+   WriteString(", ");
+   FOR i := MAX(BitIndex) TO 0 BY -1 DO
+      IF bit(a, i) THEN
+         WriteString("1");
+      ELSE
+         WriteString("0");
+      END;
+      IF (i MOD 4 = 0) AND (i # 0) THEN
+         WriteString(" : ");
+      END;
    END;
-   WriteString(", bit 2 is ");
-   IF bit(a, 2) THEN
-      WriteString("set");
-   ELSE
-      WriteString("clear");
-   END;
+
    WriteLn;
 
    WriteString("b = ");
    WriteCard(b, 1);
    WriteString(", NOT b = ");
    WriteCard(bwNot(b), 1);
-   WriteString(", bit 3 is ");
-   IF bit(b, 3) THEN
-      WriteString("set");
-   ELSE
-      WriteString("clear");
-   END;
-   WriteString(", bit 2 is ");
-   IF bit(b, 2) THEN
-      WriteString("set");
-   ELSE
-      WriteString("clear");
+   WriteString(", ");
+   FOR i := MAX(BitIndex) TO 0 BY -1 DO
+      IF bit(b, i) THEN
+         WriteString("1");
+      ELSE
+         WriteString("0");
+      END;
+      IF (i MOD 4 = 0) AND (i # 0) THEN
+         WriteString(" : ");
+      END;
    END;
    WriteLn;
 
@@ -75,17 +76,16 @@ BEGIN
    WriteCard(c, 1);
    WriteString(", NOT c = ");
    WriteCard(bwNot(c), 1);
-   WriteString(", bit 3 is ");
-   IF bit(c, 3) THEN
-      WriteString("set");
-   ELSE
-      WriteString("clear");
-   END;
-   WriteString(", bit 2 is ");
-   IF bit(c, 2) THEN
-      WriteString("set");
-   ELSE
-      WriteString("clear");
+   WriteString(", ");
+   FOR i := MAX(BitIndex) TO 0 BY -1 DO
+      IF bit(c, i) THEN
+         WriteString("1");
+      ELSE
+         WriteString("0");
+      END;
+      IF (i MOD 4 = 0) AND (i # 0) THEN
+         WriteString(" : ");
+      END;
    END;
    WriteLn;
    WriteLn;

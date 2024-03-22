@@ -4,18 +4,23 @@ AUX      := Makefile README.md LICENSE .gitignore
 
 CC_PATH  := $(HOME)/opt/bin
 COMPILER := $(CC_PATH)/gm2
-FLAGS    := -g -freport-bug
+FLAGS    := -g
 INC      := defs
 SRC      := impls
 OBJ      := objs
 BIN      := bin
 TESTS    := tests
 
-
-tests: $(INC)/CardBitOps.def $(OBJ)/CardBitOps.o
+tests_portable: portable $(INC)/CardBitOps.def $(OBJ)/portable/CardBitOps.o
 	$(COMPILER) $(FLAGS) -I$(INC)/ \
-	$(OBJ)/CardBitOps.o $(TESTS)/CardBitOpsTests.mod \
-	-o $(BIN)/CardBitOpsTests
+	$(OBJ)/portable/CardBitOps.o $(TESTS)/CardBitOpsTests.mod \
+	-o $(BIN)/portable/CardBitOpsTests
+
+
+tests_gnu_x86: gnu_x86 $(INC)/CardBitOps.def $(OBJ)/gnu/x86/CardBitOps.o
+	$(COMPILER) $(FLAGS) -I$(INC)/ \
+	$(OBJ)/gnu/x86/CardBitOps.o $(TESTS)/CardBitOpsTests.mod \
+	-o $(BIN)/gnu/x86/CardBitOpsTests
 
 
 portable: $(SRC)/portable/CardBitOps.mod $(INC)/CardBitOps.def
@@ -24,7 +29,7 @@ portable: $(SRC)/portable/CardBitOps.mod $(INC)/CardBitOps.def
 	-o $(OBJ)/CardBitOps.o
 
 
-gnu: $(SRC)/gnu/CardBitOps.mod $(INC)/CardBitOps.def
+gnu_x86: $(SRC)/gnu/x86/CardBitOps.mod $(INC)/CardBitOps.def
 	$(COMPILER) $(FLAGS) -I$(INC)/ \
-	-c $(SRC)/gnu/CardBitOps.mod \
-	-o $(OBJ)/CardBitOps.o
+	-c $(SRC)/gnu/x86/CardBitOps.mod \
+	-o $(OBJ)/gnu/x86/CardBitOps.o
