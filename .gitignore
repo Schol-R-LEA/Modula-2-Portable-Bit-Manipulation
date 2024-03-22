@@ -1,3 +1,10 @@
 # Object file
 *.o
+bin/*
+objs/*
+
 *.txt
+
+
+# editor cruft
+.vscode
