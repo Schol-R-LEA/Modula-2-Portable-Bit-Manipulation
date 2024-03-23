@@ -69,4 +69,4 @@ Thanks to Michael Reidl for testing the portable library under XDS Modula-2, and
 
 Thanks to John O. Goyo for testing the portable library under GNU Modula-2 (Solaris, sparc64).
 
-Thanks to Eric Streit, John O. Goyo, Rudolph Schubert, and Christopher Schlegel for general advice and assistance.
+Thanks to Eric Streit, Rudolph Schubert, and Christopher Schlegel for general advice and assistance.
