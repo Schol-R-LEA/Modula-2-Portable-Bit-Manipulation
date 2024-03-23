@@ -19,6 +19,14 @@ IMPLEMENTATION MODULE CardBitOps; (* portable *)
 (* Bit Operations on Type CARDINAL *)
 
 (* ---------------------------------------------------------------------------
+ * Powers of 2 table
+ * ------------------------------------------------------------------------ *)
+
+VAR
+  powerOf2 : ARRAY [0..MAX(BitIndex)] OF CARDINAL;
+
+
+(* ---------------------------------------------------------------------------
  * function shl( n, shiftFactor )
  * ---------------------------------------------------------------------------
  * Returns n shifted left by shiftFactor.
@@ -43,10 +51,7 @@ VAR
   pivotalBit : BitIndex;
 
 BEGIN
-  IF n = 0 THEN
-    (* NOP *)
-
-  ELSIF shiftFactor = 0 THEN
+  IF (n = 0) OR (shiftFactor = 0) THEN
     (* NOP *)
 
   (* shifting by 1 .. Bitwidth-1 *)
@@ -97,10 +102,7 @@ VAR
   pivotalBit : BitIndex;
 
 BEGIN
-  IF n = 0 THEN
-    (* NOP *)
-
-  ELSIF shiftFactor = 0 THEN
+  IF (n = 0) OR (shiftFactor = 0) THEN
     (* NOP *)
 
   (* shifting by 1 .. Bitwidth-1 *)
@@ -145,10 +147,7 @@ VAR
   mask : CARDINAL;
 
 BEGIN
-  IF n = 0 THEN
-    (* NOP *)
-
-  ELSIF shiftFactor = 0 THEN
+  IF (n = 0) OR (shiftFactor = 0) THEN
     (* NOP *)
 
   ELSIF n = MAX(CARDINAL) THEN
@@ -234,9 +233,14 @@ VAR
   upper, lower: CARDINAL;
 
 BEGIN
-  upper := shl(n, shiftFactor);
-  lower := shr(n, Bitwidth - shiftFactor);
-  RETURN upper + lower;
+  IF (shiftFactor = 0) THEN
+    (* NOP *)
+    RETURN n
+  ELSE
+    upper := shl(n, shiftFactor);
+    lower := shr(n, Bitwidth - shiftFactor);
+    RETURN upper + lower;
+  END;
 END rotl;
 
 
@@ -252,9 +256,14 @@ VAR
   upper, lower: CARDINAL;
 
 BEGIN
-  upper := shr(n, shiftFactor);
-  lower := shl(n, Bitwidth - shiftFactor);
-  RETURN upper + lower;
+  IF shiftFactor = 0 THEN
+    (* NOP *)
+    RETURN n
+  ELSE
+    upper := shr(n, shiftFactor);
+    lower := shl(n, Bitwidth - shiftFactor);
+    RETURN upper + lower;
+  END;
 END rotr;
 
 
@@ -484,14 +493,6 @@ BEGIN
 END bwXor;
 
 
-
-
-(* ---------------------------------------------------------------------------
- * Powers of 2 table
- * ------------------------------------------------------------------------ *)
-
-VAR
-  powerOf2 : ARRAY [0..MAX(BitIndex)] OF CARDINAL;
 
 (* ---------------------------------------------------------------------------
  * private procedure InitPow2Table

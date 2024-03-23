@@ -16,9 +16,9 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. *)
 
 MODULE CardBitOpsTests;
 
-FROM STextIO IMPORT WriteString, WriteLn;
+FROM STextIO IMPORT WriteChar, WriteString, WriteLn;
 FROM SWholeIO IMPORT WriteCard;
-FROM CardBitOps IMPORT BitIndex, Bitwidth, BitMax,
+FROM CardBitOps IMPORT BitIndex, BitMax,
                        bit, SetBit, ClearBit, ToggleBit,
                        ClearLSBtoN, ClearMSBtoN,
                        shl, shr, ashr, shlc,
@@ -41,9 +41,9 @@ VAR
 BEGIN
    FOR i := MAX(BitIndex) TO 0 BY -1 DO
       IF bit(n, i) THEN
-         WriteString("1");
+         WriteChar('1');
       ELSE
-         WriteString("0");
+         WriteChar('0');
       END;
       IF (i MOD 4 = 0) AND (i # 0) THEN
          WriteString(" : ");
