@@ -2,6 +2,7 @@
 *.o
 bin/*
 objs/*
+bin/*/CardBitOPsTests
 
 *.txt
 
