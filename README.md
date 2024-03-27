@@ -57,7 +57,7 @@ To compile a given implementation without also compiling the test suite, the fol
 
 
 ## Credits
-This library is licensed under the GNU General Public License v.3, as described in the LICENSE file. Copyright (C) 2024 Alice Osako.
+This library is licensed under the GNU Lesser General Public License v.2.1, as described in the LICENSE file. Copyright (C) 2024 Alice Osako.
 
 Portions of this code are derived from the [Modula-2 Bootstrap Kernel project](https://github.com/m2sf/m2bsk), Copyright (c) 2020 Modula-2 Software Foundation under the GNU Limited General Public License v.3.
 
